@@ -5,4 +5,13 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+
+    <string-array name="microclimate_array">
+        <item>Indoors</item>
+        <item>Outdoors</item>
+        <item>Kitchen</item>
+        <item>Temple</item>
+        <item>Industrial Area</item>
+        <item>Roads</item>
+    </string-array>
 </resources>

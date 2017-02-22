@@ -98,4 +98,14 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
+
+    public void clickLocation(View button) {
+
+    }
+
+    public void saveReading(View button) {
+
+    }
 }

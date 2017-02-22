@@ -13,8 +13,78 @@
     tools:context="com.chaijiaxun.pm25tracker.MainActivity"
     tools:showIn="@layout/app_bar_main">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!" />
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+
+        <TextView
+            android:text="Reading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/reading_label" />
+
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:ems="10"
+            android:id="@+id/sensor_reading" />
+
+        <TextView
+            android:text="Microclimate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/microclimate_label" />
+
+        <Spinner
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/microclimate"
+            android:layout_marginTop="10dp"
+            />
+
+        <TextView
+            android:text="Location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/location_label" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <EditText
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:text="Location"
+                android:ems="10"
+                android:id="@+id/editText3"
+                android:layout_weight="1"
+                android:layout_width="wrap_content" />
+
+            <Button
+                android:text="Locate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/button"
+                android:onClick="clickLocation (MainActivity)" />
+        </LinearLayout>
+
+        <Button
+            android:text="Save"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/save_btn"
+            android:onClick="saveReading (MainActivity)" />
+
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/readings_view" />
+    </LinearLayout>
 </RelativeLayout>
