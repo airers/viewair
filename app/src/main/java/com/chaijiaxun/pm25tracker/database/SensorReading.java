@@ -11,7 +11,7 @@ import java.util.List;
  */
 
 public class SensorReading extends SugarRecord {
-    Date time;
+    long time;
     int sensorReading;
     int microClimate;
     float locationLat;
@@ -21,7 +21,7 @@ public class SensorReading extends SugarRecord {
     public SensorReading() {}
 
     public SensorReading(Date time, int sensorReading, int microClimate, float locationLat, float locationLon, int locationAccuracy) {
-        this.time = time;
+        this.time = time.getTime();
         this.sensorReading = sensorReading;
         this.microClimate = microClimate;
         this.locationLat = locationLat;
@@ -31,5 +31,10 @@ public class SensorReading extends SugarRecord {
 
     public static List<SensorReading> getList() {
         return Select.from(SensorReading.class).list();
+    }
+
+    @Override
+    public String toString() {
+        return sensorReading + " " + microClimate + " " + locationLat + " " + locationLon + " " + time;
     }
 }
