@@ -2,10 +2,6 @@ package com.chaijiaxun.pm25tracker;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.hardware.Sensor;
-import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -26,7 +22,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.chaijiaxun.pm25tracker.database.SensorReading;
-import com.orm.SugarContext;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -175,7 +170,8 @@ public class MainActivity extends AppCompatActivity
 
 
     public void clickLocation(View button) {
-
+        SensorReading.deleteAll();
+        loadReadings();
     }
 
     public void saveReading(View button) {
@@ -191,16 +187,18 @@ public class MainActivity extends AppCompatActivity
         Log.d("MainActivity", text + " " + lat + " " + lon + " " + date.toString());
 
         SensorReading reading = new SensorReading(date, readingInt, 0, (float)lat, (float)lon, 0);
+
         reading.save();
+        Log.d("MainActivity", reading.toString());
 
         loadReadings();
     }
 
     public void loadReadings() {
-        ArrayList<SensorReading> list = new ArrayList<>();//(ArrayList)SensorReading.getList();
+        ArrayList<SensorReading> list =(ArrayList)SensorReading.getList();
         String[] values;
         Log.d("Load Readings", list.size() + " ");
-        if ( list.size() == 0 ) {
+        if ( list.size() > 0 ) {
             values = new String[list.size()];
             for ( int i = 0; i < list.size(); i++ ) {
                 values[i] = list.get(i).toString();
