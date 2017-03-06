@@ -1,6 +1,9 @@
 package com.chaijiaxun.pm25tracker;
 
 import android.Manifest;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -25,19 +28,29 @@ import com.chaijiaxun.pm25tracker.database.SensorReading;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private static final int REQUEST_ENABLE_BT = 32;
+    private final static int PERMISSION_REQUEST_LOCATION = 1;
+    private static final String TAG = "APPMainActivity";
     GPSTracker tracker;
-    final int PERMISSION_REQUEST_LOCATION = 1;
     double lat, lon;
 
     EditText sensorReading;
     ListView readingList;
+
+    BluetoothAdapter mBluetoothAdapter;
+
+    BluetoothConnector mBluetoothConnector;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -78,10 +91,22 @@ public class MainActivity extends AppCompatActivity
         } else {
             lat = tracker.getLatitude();
             lon = tracker.getLongitude();
-            Log.d("MainActivity", lat + " " + lon);
+            Log.d(TAG, lat + " " + lon);
         }
 
-        loadReadings();
+//        loadReadings();
+
+        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (mBluetoothAdapter == null) {
+            // Device does not support Bluetooth
+        } else {
+            if (!mBluetoothAdapter.isEnabled()) {
+                Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+            } else {
+                getBluetoothDevices();
+            }
+        }
     }
 
     @Override
@@ -167,6 +192,8 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    //asfasfsa
+
 
 
     public void clickLocation(View button) {
@@ -211,6 +238,33 @@ public class MainActivity extends AppCompatActivity
                 android.R.layout.simple_list_item_1, android.R.id.text1, values);
 
         readingList.setAdapter(adapter);
+
+    }
+
+    private void getBluetoothDevices() {
+        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
+        Log.d(TAG, "There are " + pairedDevices.size() + " devices paired");
+        if (pairedDevices.size() > 0) {
+            // There are paired devices. Get the name and address of each paired device.
+            for (BluetoothDevice device : pairedDevices) {
+                String deviceName = device.getName();
+                String deviceHardwareAddress = device.getAddress(); // MAC address
+
+                Log.d(TAG, deviceName + " " + deviceHardwareAddress);
+
+                if ( deviceName.equals("HC-05") ) {
+                    mBluetoothConnector = new BluetoothConnector(device);
+                    mBluetoothConnector.run();
+                    break;
+                }
+            }
+        }
+    }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.d(TAG, "onActivityResult");
+        getBluetoothDevices();
 
     }
 }
