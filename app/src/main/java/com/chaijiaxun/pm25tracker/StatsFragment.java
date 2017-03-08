@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.chaijiaxun.pm25tracker.lists.StatsItem;
+import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
@@ -26,6 +28,8 @@ public class StatsFragment extends Fragment {
 
     BarChart statsChart;
     ListView statsListView;
+
+    public StatsItemAdapter statsItemAdapter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,6 +57,19 @@ public class StatsFragment extends Fragment {
         BarData bardata = new BarData(dataSet);
         statsChart.setData(bardata);
         statsChart.invalidate(); // refresh
+
+        ArrayList<StatsItem> statsItems = new ArrayList<>();
+        statsItems.add(new StatsItem("5pm", 12, 14, 15));
+        statsItems.add(new StatsItem("6pm", 12, 14, 15));
+        statsItems.add(new StatsItem("7pm", 12, 14, 15));
+        statsItems.add(new StatsItem("8pm", 12, 14, 15));
+        statsItems.add(new StatsItem("9pm", 12, 14, 15));
+        statsItems.add(new StatsItem("10pm", 12, 14, 15));
+        statsItems.add(new StatsItem("11pm", 12, 14, 15));
+
+        statsItemAdapter = new StatsItemAdapter(statsItems);
+
+        statsListView.setAdapter(statsItemAdapter);
 
 
         return fragmentView;
