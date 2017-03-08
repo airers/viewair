@@ -37,4 +37,11 @@
             android:title="@string/nav_help" />
     </group>
 
+    <group android:id="@+id/group_dev"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_dev"
+            android:icon="@drawable/ic_menu_settings"
+            android:title="@string/nav_settings" />
+    </group>
 </menu>

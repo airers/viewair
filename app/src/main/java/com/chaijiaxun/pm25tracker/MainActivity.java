@@ -20,15 +20,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener, HomeFragment.OnFragmentInteractionListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "APPMainActivity";
     GPSTracker tracker;
     final int PERMISSION_REQUEST_LOCATION = 1;
-    double lat, lon;
 
-//    EditText sensorReading;
-//    ListView readingList;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,8 +50,6 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-//        sensorReading = (EditText) findViewById(R.id.sensor_reading);
-//        readingList = (ListView) findViewById(R.id.readings_view);
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -66,14 +62,14 @@ public class MainActivity extends AppCompatActivity
                     PERMISSION_REQUEST_LOCATION);
         }
 
-        tracker = new GPSTracker(this);
-        if (!tracker.canGetLocation()) {
-            tracker.showSettingsAlert();
-        } else {
-            lat = tracker.getLatitude();
-            lon = tracker.getLongitude();
-            Log.d("MainActivity", lat + " " + lon);
-        }
+//        tracker = new GPSTracker(this);
+//        if (!tracker.canGetLocation()) {
+//            tracker.showSettingsAlert();
+//        } else {
+//            lat = tracker.getLatitude();
+//            lon = tracker.getLongitude();
+//            Log.d("MainActivity", lat + " " + lon);
+//        }
 
         Fragment fragment = new HomeFragment();
         Bundle args = new Bundle();
@@ -179,15 +175,27 @@ public class MainActivity extends AppCompatActivity
 
                 break;
             case R.id.nav_readings:
+                setTitle("Readings");
 
                 break;
             case R.id.nav_settings:
+                setTitle("Settings");
 
                 break;
             case R.id.nav_bluetooth:
+                setTitle("Bluetooth Devices");
 
                 break;
             case R.id.nav_help:
+                setTitle("Help and Feedback");
+
+                break;
+
+            case R.id.nav_dev:
+                setTitle("Developer page");
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, DevFragment.newInstance())
+                        .commit();
 
                 break;
         }
@@ -197,54 +205,4 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
-
-
-//    public void clickLocation(View button) {
-//        SensorReading.deleteAll();
-//        loadReadings();
-//    }
-
-//    public void saveReading(View button) {
-//        Log.d("MainActivity", "Saving reading");
-//        String text = sensorReading.getText().toString();
-//        int readingInt;
-//        try {
-//            readingInt = Integer.parseInt(text);
-//        } catch (NumberFormatException e) {
-//            readingInt = 0;
-//        }
-//        Date date = new Date();
-//        Log.d("MainActivity", text + " " + lat + " " + lon + " " + date.toString());
-//
-//        SensorReading reading = new SensorReading(date, readingInt, 0, (float)lat, (float)lon, 0);
-//
-//        reading.save();
-//        Log.d("MainActivity", reading.toString());
-//
-//        loadReadings();
-//    }
-
-//    public void loadReadings() {
-//        ArrayList<SensorReading> list =(ArrayList)SensorReading.getList();
-//        String[] values;
-//        Log.d("Load Readings", list.size() + " ");
-//        if ( list.size() > 0 ) {
-//            values = new String[list.size()];
-//            for ( int i = 0; i < list.size(); i++ ) {
-//                values[i] = list.get(i).toString();
-//            }
-//        } else {
-//            values = new String[] { "Nothing in database" };
-//        }
-//
-//        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
-//                android.R.layout.simple_list_item_1, android.R.id.text1, values);
-//
-//        readingList.setAdapter(adapter);
-//
-//    }
 }
