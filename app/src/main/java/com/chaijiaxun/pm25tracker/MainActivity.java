@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity
             Log.d("MainActivity", lat + " " + lon);
         }
 
-        loadReadings();
+//        loadReadings();
     }
 
     @Override
@@ -148,18 +148,28 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        switch (id) {
+            case R.id.nav_home:
 
-        } else if (id == R.id.nav_slideshow) {
+                break;
+            case R.id.nav_stats:
 
-        } else if (id == R.id.nav_manage) {
+                break;
+            case R.id.nav_map:
 
-        } else if (id == R.id.nav_share) {
+                break;
+            case R.id.nav_readings:
 
-        } else if (id == R.id.nav_send) {
+                break;
+            case R.id.nav_settings:
 
+                break;
+            case R.id.nav_bluetooth:
+
+                break;
+            case R.id.nav_help:
+
+                break;
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
