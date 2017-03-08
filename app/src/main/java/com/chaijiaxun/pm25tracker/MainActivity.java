@@ -3,7 +3,6 @@ package com.chaijiaxun.pm25tracker;
 import android.Manifest;
 
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_map:
                 setTitle("Map");
                 fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, MapFragment.newInstance("1231", "123123"))
+                        .replace(R.id.content_frame, MapHistoryFragment.newInstance("1231", "123123"))
                         .commit();
 
                 break;
