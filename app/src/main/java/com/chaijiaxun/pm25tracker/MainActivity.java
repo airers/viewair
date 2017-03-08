@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_map:
                 setTitle("Map");
                 fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, MapHistoryFragment.newInstance("1231", "123123"))
+                        .replace(R.id.content_frame, MapHistoryFragment.newInstance("123", "123123"))
                         .commit();
 
                 break;
