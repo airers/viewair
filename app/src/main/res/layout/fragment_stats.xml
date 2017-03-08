@@ -3,19 +3,23 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
         <Spinner
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/spinner_day" />
+            android:id="@+id/spinner_day"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"/>
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/filter_button"/>
-    </LinearLayout>
+            android:text="@string/filter_button"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"/>
+    </RelativeLayout>
     <com.github.mikephil.charting.charts.BarChart
         android:id="@+id/chart_history"
         android:layout_width="match_parent"

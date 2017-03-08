@@ -34,7 +34,7 @@ public class StatsItemAdapter extends BaseAdapter {
     }
     @Override
     public int getCount() {
-        return data.size();
+        return Math.max(1, data.size());
     }
 
     @Override
