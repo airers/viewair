@@ -5,7 +5,9 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
 import com.chaijiaxun.pm25tracker.lists.StatsItem;
 import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
@@ -26,6 +28,7 @@ public class StatsFragment extends Fragment {
         return new StatsFragment();
     }
 
+    Spinner datepickerSpinner;
     BarChart statsChart;
     ListView statsListView;
 
@@ -44,6 +47,11 @@ public class StatsFragment extends Fragment {
 
         statsChart = (BarChart)fragmentView.findViewById(R.id.chart_history);
         statsListView = (ListView)fragmentView.findViewById(R.id.listview_stats);
+        datepickerSpinner = (Spinner)fragmentView.findViewById(R.id.spinner_day);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.microclimate_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        datepickerSpinner.setAdapter(adapter);
 
         List<BarEntry> entries = new ArrayList<>();
         entries.add(new BarEntry(1, 2));
