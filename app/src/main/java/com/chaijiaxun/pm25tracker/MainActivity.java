@@ -164,6 +164,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_stats:
                 setTitle("Statistics");
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, StatsFragment.newInstance())
+                        .commit();
 
                 break;
             case R.id.nav_map:

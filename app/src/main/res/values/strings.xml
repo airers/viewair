@@ -25,4 +25,13 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="filter_button">Filter</string>
+
+    <string name="stats_label_min">min</string>
+    <string name="stats_label_max">max</string>
+    <string name="stats_label_avg">average</string>
+    <string name="placeholder_microclimate">indoors</string>
+    <string name="placeholder_time">00:00</string>
+    <string name="no_data">No data</string>
 </resources>
