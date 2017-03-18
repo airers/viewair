@@ -156,6 +156,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_home:
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, HomeFragment.newInstance())
+                        .addToBackStack("Home")
                         .commit();
 
                 setTitle("PM2.5 App");
@@ -166,6 +167,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle("Statistics");
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, StatsFragment.newInstance())
+                        .addToBackStack("Stats")
                         .commit();
 
                 break;
@@ -173,6 +175,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle("Map");
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, MapHistoryFragment.newInstance("123", "123123"))
+                        .addToBackStack("Map")
                         .commit();
 
                 break;
@@ -188,6 +191,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle("Bluetooth Devices");
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, BTDeviceFragment.newInstance())
+                        .addToBackStack("Bluetooth")
                         .commit();
                 break;
             case R.id.nav_help:
@@ -199,6 +203,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle("Developer page");
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, DevFragment.newInstance())
+                        .addToBackStack("Dev")
                         .commit();
 
                 break;
