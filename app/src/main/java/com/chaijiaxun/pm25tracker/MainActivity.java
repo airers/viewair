@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.nav_home:
                 fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, HomeFragment.newInstance("1231", "123123"))
+                        .replace(R.id.content_frame, HomeFragment.newInstance())
                         .commit();
 
                 setTitle("PM2.5 App");
