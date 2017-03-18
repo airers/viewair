@@ -186,7 +186,9 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_bluetooth:
                 setTitle("Bluetooth Devices");
-
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, BTDeviceFragment.newInstance())
+                        .commit();
                 break;
             case R.id.nav_help:
                 setTitle("Help and Feedback");

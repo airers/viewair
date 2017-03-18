@@ -1,4 +1,4 @@
-package com.chaijiaxun.pm25tracker;
+package com.chaijiaxun.pm25tracker.utils;
 
 import android.content.Context;
 
