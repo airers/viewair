@@ -8,6 +8,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+
+import com.chaijiaxun.pm25tracker.bluetooth.Device;
+import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
 
 
 /**
@@ -16,15 +22,15 @@ import android.view.ViewGroup;
  * create an instance of this fragment.
  */
 public class HomeFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private static final String TAG = "APPHomeFragment";
 
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+
+    Button connectButton;
+    RelativeLayout warningLayout;
+    RelativeLayout deviceNameLayout;
+    Button unlinkButton;
+    TextView warningText;
+    TextView deviceNameText;
 
 
     public HomeFragment() {
@@ -35,18 +41,11 @@ public class HomeFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment HomeFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static HomeFragment newInstance(String param1, String param2) {
+    public static HomeFragment newInstance() {
         HomeFragment fragment = new HomeFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        Log.d(TAG, "New instance of fragment");
-        fragment.setArguments(args);
         return fragment;
     }
 
@@ -54,18 +53,66 @@ public class HomeFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "Fragment created");
-
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_home, container, false);
+        View v = inflater.inflate(R.layout.fragment_home, container, false);
+        connectButton = (Button)v.findViewById(R.id.button_connect);
+        warningLayout = (RelativeLayout) v.findViewById(R.id.layout_warning);
+        deviceNameLayout = (RelativeLayout) v.findViewById(R.id.layout_last_device);
+        unlinkButton = (Button) v.findViewById(R.id.button_unlink);
+        warningText = (TextView) v.findViewById(R.id.text_warning);
+        deviceNameText = (TextView) v.findViewById(R.id.text_device_name);
+
+
+        connectButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeviceManager.getInstance().setCurrentDevice(new Device());
+                refreshItems();
+
+            }
+        });
+
+        unlinkButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DeviceManager.getInstance().setCurrentDevice(null);
+                refreshItems();
+            }
+        });
+
+
+        refreshItems();
+
+        return v;
+    }
+
+    /**
+     * Does the hide / show logic for the page
+     */
+    public void refreshItems() {
+        deviceNameLayout.setVisibility(View.INVISIBLE);
+        warningLayout.setVisibility(View.INVISIBLE);
+        connectButton.setVisibility(View.INVISIBLE);
+
+        if ( DeviceManager.getInstance().hasLastDevice() ) {
+            deviceNameLayout.setVisibility(View.VISIBLE);
+            deviceNameText.setText(DeviceManager.getInstance().getCurrentDevice().getName());
+            if ( DeviceManager.getInstance().isDeviceConnected() ) {
+                warningLayout.setVisibility(View.VISIBLE);
+                warningText.setText("DEVICE NOT CONNECTED");
+            }
+        } else {
+            warningLayout.setVisibility(View.VISIBLE);
+            warningText.setText("NO DEVICE CONNECTED");
+            connectButton.setVisibility(View.VISIBLE);
+        }
+
+
     }
 
 

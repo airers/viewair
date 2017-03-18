@@ -6,6 +6,18 @@ package com.chaijiaxun.pm25tracker.bluetooth;
 
 public class Device {
     String name;
-    String id;
+    String uuid;
 
+    public Device() {
+        name = "HC-05";
+        uuid = "12345";
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
 }
