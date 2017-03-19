@@ -17,18 +17,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.ListView;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private final static int PERMISSION_REQUEST_LOCATION = 1;
     private static final String TAG = "APPMainActivity";
     GPSTracker tracker;
-    final int PERMISSION_REQUEST_LOCATION = 1;
+    double lat, lon;
 
+    EditText sensorReading;
+    ListView readingList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
+
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -59,7 +66,6 @@ public class MainActivity extends AppCompatActivity
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_LOCATION);
         }
-
 //        tracker = new GPSTracker(this);
 //        if (!tracker.canGetLocation()) {
 //            tracker.showSettingsAlert();
@@ -81,9 +87,6 @@ public class MainActivity extends AppCompatActivity
                 .commit();
 
         Log.d(TAG, "Pressed home");
-
-
-//        loadReadings();
     }
 
     @Override
@@ -154,7 +157,8 @@ public class MainActivity extends AppCompatActivity
         switch (id) {
             case R.id.nav_home:
                 fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, HomeFragment.newInstance("1231", "123123"))
+                        .replace(R.id.content_frame, HomeFragment.newInstance())
+                        .addToBackStack("Home")
                         .commit();
 
                 setTitle("PM2.5 App");
@@ -165,6 +169,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle("Statistics");
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, StatsFragment.newInstance())
+                        .addToBackStack("Stats")
                         .commit();
 
                 break;
@@ -172,6 +177,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle("Map");
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, MapHistoryFragment.newInstance("123", "123123"))
+                        .addToBackStack("Map")
                         .commit();
 
                 break;
@@ -185,7 +191,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_bluetooth:
                 setTitle("Bluetooth Devices");
-
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, BTDeviceFragment.newInstance())
+                        .addToBackStack("Bluetooth")
+                        .commit();
                 break;
             case R.id.nav_help:
                 setTitle("Help and Feedback");
@@ -196,6 +205,7 @@ public class MainActivity extends AppCompatActivity
                 setTitle("Developer page");
                 fragmentManager.beginTransaction()
                         .replace(R.id.content_frame, DevFragment.newInstance())
+                        .addToBackStack("Dev")
                         .commit();
 
                 break;
@@ -205,5 +215,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 }
