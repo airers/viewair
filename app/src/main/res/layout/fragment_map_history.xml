@@ -5,14 +5,11 @@
     xmlns:map="http://schemas.android.com/apk/res-auto"
     tools:context="com.chaijiaxun.pm25tracker.MapHistoryFragment">
 
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        android:name="com.google.android.gms.maps.MapFragment"
+    <RelativeLayout
         android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        map:cameraTargetLat="1.291149"
-        map:cameraTargetLng="103.779720"
-        map:cameraZoom="13"/>
+        android:layout_height="wrap_content">
+    </RelativeLayout>
     <!-- TODO: Update blank fragment layout -->
     <TextView
         android:layout_width="match_parent"
