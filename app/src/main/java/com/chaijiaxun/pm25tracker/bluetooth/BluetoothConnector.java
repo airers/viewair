@@ -1,4 +1,4 @@
-package com.chaijiaxun.pm25tracker;
+package com.chaijiaxun.pm25tracker.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
@@ -11,12 +11,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.UUID;
 
-class BluetoothConnector extends Thread {
+public class BluetoothConnector extends Thread {
     private static final String TAG = "APPBluetoothClient";
     private final BluetoothSocket mmSocket;
     private final BluetoothDevice mmDevice;
 
-    public BluetoothConnector(BluetoothDevice device) {
+    private BTConnectCallback callback;
+
+    public BluetoothConnector(BluetoothDevice device, BTConnectCallback callback) {
         // Use a temporary object that is later assigned to mmSocket
         // because mmSocket is final.
         BluetoothSocket tmp = null;
@@ -24,6 +26,8 @@ class BluetoothConnector extends Thread {
         ParcelUuid [] uuids = mmDevice.getUuids();
 
         Log.d(TAG, "UUID Count " + uuids.length);
+
+        this.callback = callback;
 
 
 
@@ -57,6 +61,9 @@ class BluetoothConnector extends Thread {
         }
 
         Log.d(TAG, "Connected to bluetooth socket");
+        if ( callback != null ) {
+            callback.deviceConnected(mmSocket);
+        }
 
 //        try {
 //            InputStream stream = mmSocket.getInputStream();
