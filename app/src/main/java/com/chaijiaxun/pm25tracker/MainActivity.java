@@ -17,18 +17,24 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
+import android.widget.ListView;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
-
+    private final static int PERMISSION_REQUEST_LOCATION = 1;
     private static final String TAG = "APPMainActivity";
     GPSTracker tracker;
-    final int PERMISSION_REQUEST_LOCATION = 1;
+    double lat, lon;
 
+    EditText sensorReading;
+    ListView readingList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
 
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -60,7 +66,6 @@ public class MainActivity extends AppCompatActivity
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_LOCATION);
         }
-
 //        tracker = new GPSTracker(this);
 //        if (!tracker.canGetLocation()) {
 //            tracker.showSettingsAlert();
@@ -82,9 +87,6 @@ public class MainActivity extends AppCompatActivity
                 .commit();
 
         Log.d(TAG, "Pressed home");
-
-
-//        loadReadings();
     }
 
     @Override
@@ -213,5 +215,4 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 }

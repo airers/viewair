@@ -1,5 +1,6 @@
 package com.chaijiaxun.pm25tracker.utils;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 
 /**
@@ -7,12 +8,17 @@ import android.content.Context;
  */
 
 public class AppData {
-    private AppData() {
+    private BluetoothAdapter bluetoothAdapter;
 
-    }
     private static AppData instance = new AppData();
     public static AppData getInstance() {
         return instance;
+    }
+
+
+    private AppData() {
+        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
     }
 
     private Context appContext;
@@ -22,6 +28,10 @@ public class AppData {
 
     public Context getApplicationContext() {
         return appContext;
+    }
+
+    public BluetoothAdapter getBluetoothAdapter() {
+        return bluetoothAdapter;
     }
 
     // Should store database stuff
