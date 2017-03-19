@@ -90,7 +90,7 @@ public class DevFragment extends Fragment {
     }
 
     public void loadReadings() {
-        ArrayList<SensorReading> list =(ArrayList) SensorReading.getList();
+        ArrayList<SensorReading> list = (ArrayList)SensorReading.getList();
         String[] values;
         Log.d("Load Readings", list.size() + " ");
         if ( list.size() > 0 ) {
