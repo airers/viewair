@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
@@ -40,19 +41,37 @@ public class DevFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        sensorReading = (EditText) container.findViewById(R.id.sensor_reading);
-        readingList = (ListView) container.findViewById(R.id.readings_view);
 
-        return inflater.inflate(R.layout.content_main, container, false);
+        View view = inflater.inflate(R.layout.content_main, container, false);
+
+        final Button saveButton = (Button) view.findViewById(R.id.button_save);
+        saveButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                saveReading();
+            }
+        });
+
+        final Button locateButton = (Button) view.findViewById(R.id.button_locate);
+        locateButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                clickLocation();
+            }
+        });
+
+        sensorReading = (EditText) view.findViewById(R.id.sensor_reading);
+        readingList = (ListView) view.findViewById(R.id.readings_view);
+        loadReadings();
+
+        return view;
 
     }
 
-    public void clickLocation(View button) {
-        SensorReading.deleteAll();
+    public void clickLocation() {
+        SensorReading.deleteAll(SensorReading.class);
         loadReadings();
     }
 
-    public void saveReading(View button) {
+    public void saveReading() {
         Log.d("MainActivity", "Saving reading");
         String text = sensorReading.getText().toString();
         int readingInt;
@@ -62,8 +81,6 @@ public class DevFragment extends Fragment {
             readingInt = 0;
         }
         Date date = new Date();
-        Log.d("MainActivity", text + " " + lat + " " + lon + " " + date.toString());
-
         SensorReading reading = new SensorReading(date, readingInt, 0, (float)lat, (float)lon, 0);
 
         reading.save();
@@ -73,7 +90,7 @@ public class DevFragment extends Fragment {
     }
 
     public void loadReadings() {
-        ArrayList<SensorReading> list =(ArrayList)SensorReading.getList();
+        ArrayList<SensorReading> list =(ArrayList) SensorReading.getList();
         String[] values;
         Log.d("Load Readings", list.size() + " ");
         if ( list.size() > 0 ) {

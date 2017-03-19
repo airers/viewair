@@ -4,13 +4,14 @@ package com.chaijiaxun.pm25tracker;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -58,15 +59,20 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        MapFragment mapFragment= (MapFragment) getActivity().getFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-        super.onViewCreated(view, savedInstanceState);
+        FragmentManager fm = getChildFragmentManager();
+        SupportMapFragment fragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+        if (fragment == null) {
+            fragment = SupportMapFragment.newInstance();
+            fm.beginTransaction().replace(R.id.map, fragment).commit();
+        }
+        /*AppData.getInstance().setMapFragment((MapFragment) getActivity().getFragmentManager()
+                .findFragmentById(R.id.map));
+        AppData.getInstance().getMapFragment().getMapAsync(this);
+        super.onViewCreated(view, savedInstanceState);*/
     }
 
     @Override
