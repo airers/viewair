@@ -14,6 +14,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ListView;
 
 import com.chaijiaxun.pm25tracker.bluetooth.BTConnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacketCallback;
@@ -34,6 +35,8 @@ public class BTDeviceFragment extends Fragment {
 
     private BluetoothDevice hardcodedDevice;
     private Button scanButton;
+
+    private ListView pairedListView, availableListView;
 
     public BTDeviceFragment() {
         mBluetoothAdapter = AppData.getInstance().getBluetoothAdapter();
@@ -57,11 +60,15 @@ public class BTDeviceFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_bt_devices, container, false);
         scanButton = (Button) view.findViewById(R.id.button_scan);
+        pairedListView = (ListView) view.findViewById(R.id.listview_paired);
+        availableListView = (ListView) view.findViewById(R.id.listview_available);
 
         final BTPacketCallback packetCallback = new BTPacketCallback() {
             @Override
             public void packetReceived(BluetoothSocket socket, byte[] data, int bytesReceived) {
-                Log.d(TAG,new String(data));
+                if ( data != null ) {
+                    Log.d(TAG, new String(data));
+                }
             }
         };
         final BTConnectCallback connectCallback = new BTConnectCallback() {
@@ -76,7 +83,11 @@ public class BTDeviceFragment extends Fragment {
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ( hardcodedDevice != null ) {
+                if ( mBluetoothService != null ) {
+                    byte [] data = "Hello".getBytes();
+                    mBluetoothService.write(data);
+                    Log.d(TAG, "Writing stuff");
+                } else if ( hardcodedDevice != null ) {
                     Log.d(TAG, "Starting the bluetooth connector");
                     mBluetoothConnector = new BluetoothConnector(hardcodedDevice, connectCallback);
                     mBluetoothConnector.start();
