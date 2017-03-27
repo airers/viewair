@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
 
@@ -87,6 +88,12 @@ public class HomeFragment extends Fragment {
         });
 
         refreshItems();
+        DeviceManager.getInstance().setDisconnectCallback(new BTDisconnectCallback() {
+            @Override
+            public void deviceDisonnected() {
+                refreshItems();
+            }
+        });
 
         return v;
     }

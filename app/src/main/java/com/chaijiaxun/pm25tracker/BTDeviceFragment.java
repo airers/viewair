@@ -41,6 +41,8 @@ public class BTDeviceFragment extends Fragment {
     private BluetoothDevice [] pairedDevices = new BluetoothDevice[0];
     private String[] pairedStrings;
 
+    private boolean connecting = false;
+
     private BTConnectCallback connectCallback;
 
     private ListView pairedListView, availableListView;
@@ -72,11 +74,23 @@ public class BTDeviceFragment extends Fragment {
             @Override
             public void deviceConnected(final BluetoothSocket s) {
                 DeviceManager.getInstance().setBluetoothService(s);
+                connecting = false;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         Toast.makeText(getContext(), "Connected to " + s.getRemoteDevice().getName(), Toast.LENGTH_SHORT).show();
                         getFragmentManager().popBackStack();
+                    }
+                });
+            }
+
+            @Override
+            public void unableToConnect(final String message) {
+                connecting = false;
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "Unable to connect. " + message, Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -122,6 +136,12 @@ public class BTDeviceFragment extends Fragment {
     }
 
     private void connectTo(BluetoothDevice bluetoothDevice) {
+        if ( connecting ) {
+            return;
+        }
+        connecting = true;
+        Toast.makeText(getContext(), "Connecting to " + bluetoothDevice.getName(), Toast.LENGTH_SHORT).show();
+
         DeviceManager.getInstance().setCurrentDevice(bluetoothDevice);
         mBluetoothConnector = new BluetoothConnector(bluetoothDevice, connectCallback);
         mBluetoothConnector.start();
