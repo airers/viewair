@@ -71,8 +71,12 @@ public class HomeFragment extends Fragment {
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DeviceManager.getInstance().setCurrentDevice(new Device());
-                refreshItems();
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.content_frame, BTDeviceFragment.newInstance())
+                        .addToBackStack("Bluetooth")
+                        .commit();
+//                DeviceManager.getInstance().setCurrentDevice(new Device());
+//                refreshItems();
 
             }
         });

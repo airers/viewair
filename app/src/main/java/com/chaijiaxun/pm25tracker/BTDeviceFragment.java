@@ -13,6 +13,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 
@@ -21,6 +23,7 @@ import com.chaijiaxun.pm25tracker.bluetooth.BTPacketCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothConnector;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothService;
 import com.chaijiaxun.pm25tracker.utils.AppData;
+import com.chaijiaxun.pm25tracker.utils.UIUtils;
 
 import java.util.Set;
 
@@ -35,6 +38,10 @@ public class BTDeviceFragment extends Fragment {
 
     private BluetoothDevice hardcodedDevice;
     private Button scanButton;
+    private BluetoothDevice [] pairedDevices = new BluetoothDevice[0];
+    private String[] pairedStrings;
+
+    private BTConnectCallback connectCallback;
 
     private ListView pairedListView, availableListView;
 
@@ -50,8 +57,6 @@ public class BTDeviceFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        getPairedDevices();
     }
 
     @Override
@@ -71,7 +76,7 @@ public class BTDeviceFragment extends Fragment {
                 }
             }
         };
-        final BTConnectCallback connectCallback = new BTConnectCallback() {
+        connectCallback = new BTConnectCallback() {
             @Override
             public void deviceConnected(BluetoothSocket s) {
                 Log.d(TAG, "Device " + s.getRemoteDevice().getName() + " connected");
@@ -89,35 +94,50 @@ public class BTDeviceFragment extends Fragment {
                     Log.d(TAG, "Writing stuff");
                 } else if ( hardcodedDevice != null ) {
                     Log.d(TAG, "Starting the bluetooth connector");
-                    mBluetoothConnector = new BluetoothConnector(hardcodedDevice, connectCallback);
-                    mBluetoothConnector.start();
+
                 } else {
                     Log.d(TAG, "No device to connect to");
                 }
 
             }
         });
+
+        getPairedDevices();
         return view;
 
     }
 
     private void getPairedDevices() {
-        Set<BluetoothDevice> pairedDevices = mBluetoothAdapter.getBondedDevices();
-        Log.d(TAG, "There are " + pairedDevices.size() + " devices paired");
-        if (pairedDevices.size() > 0) {
+        pairedDevices = mBluetoothAdapter.getBondedDevices().toArray(pairedDevices);
+        pairedStrings = new String[pairedDevices.length];
+        Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
+        if (pairedDevices.length > 0) {
             // There are paired devices. Get the name and address of each paired device.
+            int index = 0;
             for (BluetoothDevice device : pairedDevices) {
                 String deviceName = device.getName();
                 String deviceHardwareAddress = device.getAddress(); // MAC address
-
-                Log.d(TAG, deviceName + " " + deviceHardwareAddress);
-
-                if ( deviceName.equals("HC-05") ) {
-                    hardcodedDevice = device;
-                    break;
-                }
+                pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
+                index++;
             }
         }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
+        pairedListView.setAdapter(adapter);
+        UIUtils.setListViewHeightBasedOnItems(pairedListView);
+        pairedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Log.d(TAG, ""+position);
+                connectTo(pairedDevices[position]);
+            }
+        });
+    }
+
+    private void connectTo(BluetoothDevice bluetoothDevice) {
+        hardcodedDevice = bluetoothDevice;
+        mBluetoothConnector = new BluetoothConnector(hardcodedDevice, connectCallback);
+        mBluetoothConnector.start();
     }
 
 
