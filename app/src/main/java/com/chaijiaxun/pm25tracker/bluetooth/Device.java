@@ -1,5 +1,7 @@
 package com.chaijiaxun.pm25tracker.bluetooth;
 
+import android.bluetooth.BluetoothDevice;
+
 /**
  * Created by chaij on 15/03/2017.
  */
@@ -7,10 +9,16 @@ package com.chaijiaxun.pm25tracker.bluetooth;
 public class Device {
     String name;
     String uuid;
+    BluetoothDevice device;
 
     public Device() {
         name = "HC-05";
         uuid = "12345";
+    }
+
+    public Device(BluetoothDevice device) {
+        name = device.getName();
+        uuid = device.getAddress();
     }
 
     public String getName() {
@@ -19,5 +27,9 @@ public class Device {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public BluetoothDevice getBluetoothDevice() {
+        return device;
     }
 }

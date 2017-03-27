@@ -17,11 +17,13 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.chaijiaxun.pm25tracker.bluetooth.BTConnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacketCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothConnector;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothService;
+import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.UIUtils;
 
@@ -34,9 +36,7 @@ public class BTDeviceFragment extends Fragment {
     // TODO: Move into some bluetooth manager
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothConnector mBluetoothConnector;
-    private BluetoothService mBluetoothService;
 
-    private BluetoothDevice hardcodedDevice;
     private Button scanButton;
     private BluetoothDevice [] pairedDevices = new BluetoothDevice[0];
     private String[] pairedStrings;
@@ -68,36 +68,23 @@ public class BTDeviceFragment extends Fragment {
         pairedListView = (ListView) view.findViewById(R.id.listview_paired);
         availableListView = (ListView) view.findViewById(R.id.listview_available);
 
-        final BTPacketCallback packetCallback = new BTPacketCallback() {
-            @Override
-            public void packetReceived(BluetoothSocket socket, byte[] data, int bytesReceived) {
-                if ( data != null ) {
-                    Log.d(TAG, new String(data));
-                }
-            }
-        };
         connectCallback = new BTConnectCallback() {
             @Override
-            public void deviceConnected(BluetoothSocket s) {
-                Log.d(TAG, "Device " + s.getRemoteDevice().getName() + " connected");
-                mBluetoothService = new BluetoothService(s);
-                mBluetoothService.setCallback(packetCallback);
+            public void deviceConnected(final BluetoothSocket s) {
+                DeviceManager.getInstance().setBluetoothService(s);
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "Connected to " + s.getRemoteDevice().getName(), Toast.LENGTH_SHORT).show();
+                        getFragmentManager().popBackStack();
+                    }
+                });
             }
         };
 
         scanButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if ( mBluetoothService != null ) {
-                    byte [] data = "Hello".getBytes();
-                    mBluetoothService.write(data);
-                    Log.d(TAG, "Writing stuff");
-                } else if ( hardcodedDevice != null ) {
-                    Log.d(TAG, "Starting the bluetooth connector");
-
-                } else {
-                    Log.d(TAG, "No device to connect to");
-                }
 
             }
         });
@@ -135,8 +122,8 @@ public class BTDeviceFragment extends Fragment {
     }
 
     private void connectTo(BluetoothDevice bluetoothDevice) {
-        hardcodedDevice = bluetoothDevice;
-        mBluetoothConnector = new BluetoothConnector(hardcodedDevice, connectCallback);
+        DeviceManager.getInstance().setCurrentDevice(bluetoothDevice);
+        mBluetoothConnector = new BluetoothConnector(bluetoothDevice, connectCallback);
         mBluetoothConnector.start();
     }
 
