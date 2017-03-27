@@ -72,8 +72,12 @@
                     android:id="@+id/button_locate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="clickLocation"
                     android:text="Locate" />
+                <Button
+                    android:id="@+id/button_db_seed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DB Seed" />
             </LinearLayout>
 
             <Button
