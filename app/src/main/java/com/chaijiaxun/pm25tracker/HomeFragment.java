@@ -3,6 +3,7 @@ package com.chaijiaxun.pm25tracker;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,8 +14,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
+import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
 import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+
+import java.text.DateFormat;
+import java.util.Date;
 
 
 /**
@@ -32,6 +37,10 @@ public class HomeFragment extends Fragment {
     Button unlinkButton;
     TextView warningText;
     TextView deviceNameText;
+    TextView phoneTimeText;
+
+    final Handler handler = new Handler();
+    Runnable aliveCheck;
 
 
     public HomeFragment() {
@@ -68,6 +77,8 @@ public class HomeFragment extends Fragment {
         warningText = (TextView) v.findViewById(R.id.text_warning);
         deviceNameText = (TextView) v.findViewById(R.id.text_device_name);
 
+        phoneTimeText = (TextView) v.findViewById(R.id.text_phone_time);
+
 
         connectButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,6 +105,32 @@ public class HomeFragment extends Fragment {
                 refreshItems();
             }
         });
+
+
+
+        aliveCheck = new Runnable() {
+            @Override
+            public void run() {
+                Log.d(TAG, "Alive Check");
+
+                try {
+                    //do your code here
+                    Date currentTime = new Date();
+                    long timeUnix = currentTime.getTime();
+                    Log.d(TAG, timeUnix + " " + Long.BYTES);
+                    phoneTimeText.setText(DateFormat.getDateTimeInstance().format(currentTime));
+                }
+                catch (Exception e) {
+                    // TODO: handle exception
+                }
+                finally {
+                    //also call the same runnable to call it at regular interval
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        };
+
+        aliveCheck.run();
 
         return v;
     }
