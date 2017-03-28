@@ -83,9 +83,16 @@ public class DeviceManager {
     }
 
     public void processPacket(ArrayList<Byte> data) {
-        if ( data.get(0) == BTPacket.TYPE_CONNECTION_ACK ) {
-            Log.d(TAG, "Connection still active");
-            receivedAck = true;
+        byte type = data.get(0);
+        switch ( type ) {
+            case BTPacket.TYPE_CONNECTION_ACK:
+                Log.d(TAG, "Connection still active");
+                receivedAck = true;
+                break;
+            case BTPacket.TYPE_MICROCLIMATE_PACKET:
+                int microclimate = (int)data.get(2);
+                currentDevice.setMicroclimate(microclimate);
+                break;
         }
     }
     public void unsetCurrentDevice() {
@@ -128,5 +135,15 @@ public class DeviceManager {
 
     public void setDisconnectCallback(BTDisconnectCallback disconnectCallback) {
         this.disconnectCallback = disconnectCallback;
+    }
+
+
+    public void setMicroclimate(int microclimate) {
+        if ( bluetoothService == null || currentDevice == null ) {
+            return;
+        }
+        byte mc = (byte)microclimate;
+        byte [] bytes = {BTPacket.TYPE_SET_MICROCLIMATE, mc};
+        this.bluetoothService.write(bytes);
     }
 }

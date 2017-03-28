@@ -1,10 +1,13 @@
 package com.chaijiaxun.pm25tracker;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +20,7 @@ import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
 import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+import com.chaijiaxun.pm25tracker.utils.AppData;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -32,12 +36,16 @@ public class HomeFragment extends Fragment {
 
 
     Button connectButton;
+    Button setMicroclimateButton;
+    Button syncTimeButton;
     RelativeLayout warningLayout;
     RelativeLayout deviceNameLayout;
     Button unlinkButton;
     TextView warningText;
     TextView deviceNameText;
     TextView phoneTimeText;
+
+    AlertDialog.Builder builder;
 
     final Handler handler = new Handler();
     Runnable aliveCheck;
@@ -71,6 +79,8 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         connectButton = (Button)v.findViewById(R.id.button_connect);
+        setMicroclimateButton = (Button)v.findViewById(R.id.button_set_microclimate);
+        syncTimeButton = (Button)v.findViewById(R.id.button_sync_time);
         warningLayout = (RelativeLayout) v.findViewById(R.id.layout_warning);
         deviceNameLayout = (RelativeLayout) v.findViewById(R.id.layout_last_device);
         unlinkButton = (Button) v.findViewById(R.id.button_unlink);
@@ -87,6 +97,33 @@ public class HomeFragment extends Fragment {
                         .replace(R.id.content_frame, BTDeviceFragment.newInstance())
                         .addToBackStack("Bluetooth")
                         .commit();
+            }
+        });
+        builder = new AlertDialog.Builder(getContext());
+
+
+        setMicroclimateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CharSequence colors[] = new CharSequence[] {"Indoors", "Outdoors"};
+
+                builder.setTitle("Choose a microclimate");
+                builder.setItems(colors, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        // the user clicked on colors[which]
+                        DeviceManager.getInstance().setMicroclimate(which);
+                    }
+                });
+
+                builder.show();
+            }
+        });
+
+        syncTimeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
             }
         });
 
@@ -109,6 +146,7 @@ public class HomeFragment extends Fragment {
 
 
         aliveCheck = new Runnable() {
+            @SuppressLint("InlinedApi")
             @Override
             public void run() {
                 Log.d(TAG, "Alive Check");
@@ -117,7 +155,7 @@ public class HomeFragment extends Fragment {
                     //do your code here
                     Date currentTime = new Date();
                     long timeUnix = currentTime.getTime();
-                    Log.d(TAG, timeUnix + " " + Long.BYTES);
+                    Log.d(TAG, timeUnix + "");
                     phoneTimeText.setText(DateFormat.getDateTimeInstance().format(currentTime));
                 }
                 catch (Exception e) {

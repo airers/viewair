@@ -9,6 +9,7 @@ import android.bluetooth.BluetoothDevice;
 public class Device {
     String name;
     String uuid;
+    int microclimate;
     BluetoothDevice device;
 
     public Device() {
@@ -31,5 +32,13 @@ public class Device {
 
     public BluetoothDevice getBluetoothDevice() {
         return device;
+    }
+
+    public int getMicroclimate() {
+        return microclimate;
+    }
+
+    public void setMicroclimate(int microclimate) {
+        this.microclimate = microclimate;
     }
 }
