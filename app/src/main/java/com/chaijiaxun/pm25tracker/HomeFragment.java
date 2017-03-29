@@ -13,8 +13,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
+import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
 import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
@@ -121,7 +123,21 @@ public class HomeFragment extends Fragment {
         syncTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Date currentTime = new Date();
+                long timeUnix = currentTime.getTime() + 3; // The 3 seconds is to offset for network delay
+                byte [] timeBytes = ByteUtils.androidLongToAndroidLong(timeUnix);
 
+                byte [] bytes = new byte[6];
+                bytes[0] = BTPacket.TYPE_SET_TIME;
+                bytes[1] = 4;
+                bytes[2] = timeBytes[0];
+                bytes[3] = timeBytes[1];
+                bytes[4] = timeBytes[2];
+                bytes[5] = timeBytes[3];
+                
+                DeviceManager.getInstance().getBluetoothService().write(bytes);
+
+                Toast.makeText(getContext(), "Syncing time", Toast.LENGTH_SHORT).show();
             }
         });
 
