@@ -1,9 +1,7 @@
 package com.chaijiaxun.pm25tracker;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -17,10 +15,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
-import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
 import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
-import com.chaijiaxun.pm25tracker.utils.AppData;
+import com.chaijiaxun.pm25tracker.utils.ByteUtils;
 
 import java.text.DateFormat;
 import java.util.Date;
@@ -43,7 +40,7 @@ public class HomeFragment extends Fragment {
     Button unlinkButton;
     TextView warningText;
     TextView deviceNameText;
-    TextView phoneTimeText;
+    TextView phoneTimeText, deviceTimeText;
 
     AlertDialog.Builder builder;
 
@@ -88,6 +85,7 @@ public class HomeFragment extends Fragment {
         deviceNameText = (TextView) v.findViewById(R.id.text_device_name);
 
         phoneTimeText = (TextView) v.findViewById(R.id.text_phone_time);
+        deviceTimeText = (TextView) v.findViewById(R.id.text_device_time);
 
 
         connectButton.setOnClickListener(new View.OnClickListener() {
@@ -144,22 +142,31 @@ public class HomeFragment extends Fragment {
         });
 
 
-
         aliveCheck = new Runnable() {
             @SuppressLint("InlinedApi")
             @Override
             public void run() {
-                Log.d(TAG, "Alive Check");
-
                 try {
                     //do your code here
                     Date currentTime = new Date();
                     long timeUnix = currentTime.getTime();
-                    Log.d(TAG, timeUnix + "");
+
+                    int timeInt = (int)(timeUnix / 1000);
+//                    Log.d(TAG, timeInt + "");
+                    byte [] timeBytes = ByteUtils.intToByteArray(timeInt);
+//                    Log.d(TAG, ByteUtils.byteArrayToString(timeBytes));
                     phoneTimeText.setText(DateFormat.getDateTimeInstance().format(currentTime));
+                    Device currentDevice = DeviceManager.getInstance().getCurrentDevice();
+                    if ( currentDevice == null ) {
+                        deviceTimeText.setText("No device connected");
+                    } else {
+                        deviceTimeText.setText(DateFormat.getDateTimeInstance().format(currentDevice.getDeviceTime()));
+                    }
+
                 }
                 catch (Exception e) {
                     // TODO: handle exception
+                    e.printStackTrace();
                 }
                 finally {
                     //also call the same runnable to call it at regular interval

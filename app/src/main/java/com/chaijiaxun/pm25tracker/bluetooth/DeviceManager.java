@@ -5,6 +5,8 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
+import com.chaijiaxun.pm25tracker.utils.ByteUtils;
+
 import java.util.ArrayList;
 
 /**
@@ -83,11 +85,27 @@ public class DeviceManager {
     }
 
     public void processPacket(ArrayList<Byte> data) {
+        Log.d(TAG, "Process packet");
         byte type = data.get(0);
+        byte length = data.get(1);
         switch ( type ) {
             case BTPacket.TYPE_CONNECTION_ACK:
                 Log.d(TAG, "Connection still active");
+                Log.d(TAG, "Length: " + length);
+
+                Log.d(TAG, "Actual Length: " + data.size());
                 receivedAck = true;
+                if ( data.size() > 6 ) {
+                    byte [] longData = {
+                            data.get(2),
+                            data.get(3),
+                            data.get(4),
+                            data.get(5)
+                    };
+                    long deviceTimestamp = ByteUtils.arduinoLongToAndroidLong(longData);
+                    currentDevice.setDeviceTime(deviceTimestamp);
+                    Log.d(TAG, "Timestamp " + deviceTimestamp);
+                }
                 break;
             case BTPacket.TYPE_MICROCLIMATE_PACKET:
                 int microclimate = (int)data.get(2);

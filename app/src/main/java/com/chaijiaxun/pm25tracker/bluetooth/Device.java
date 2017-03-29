@@ -2,22 +2,31 @@ package com.chaijiaxun.pm25tracker.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
 
+import java.util.Date;
+
 /**
- * Created by chaij on 15/03/2017.
+ * Stores device data
  */
 
 public class Device {
     String name;
     String uuid;
     int microclimate;
+    Date deviceTime;
     BluetoothDevice device;
 
     public Device() {
+        deviceTime = new Date();
+        deviceTime.setTime(0);
+
         name = "HC-05";
         uuid = "12345";
     }
 
     public Device(BluetoothDevice device) {
+        deviceTime = new Date();
+        deviceTime.setTime(0);
+
         name = device.getName();
         uuid = device.getAddress();
     }
@@ -40,5 +49,13 @@ public class Device {
 
     public void setMicroclimate(int microclimate) {
         this.microclimate = microclimate;
+    }
+
+    public void setDeviceTime(long timestamp) {
+        deviceTime.setTime(timestamp);
+    }
+
+    public Date getDeviceTime() {
+        return deviceTime;
     }
 }
