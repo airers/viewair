@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -42,6 +43,8 @@ public class HomeFragment extends Fragment {
     TextView warningText;
     TextView deviceNameText;
     TextView phoneTimeText, deviceTimeText, syncTimeText, readingCountText;
+
+    ImageView connectionStatusImage;
 
     AlertDialog.Builder builder;
 
@@ -83,6 +86,8 @@ public class HomeFragment extends Fragment {
         unlinkButton = (Button) v.findViewById(R.id.button_unlink);
         warningText = (TextView) v.findViewById(R.id.text_warning);
         deviceNameText = (TextView) v.findViewById(R.id.text_device_name);
+
+        connectionStatusImage = (ImageView) v.findViewById(R.id.image_connection_status);
 
         // Status card
         phoneTimeText = (TextView) v.findViewById(R.id.text_phone_time);
@@ -244,15 +249,16 @@ public class HomeFragment extends Fragment {
         deviceNameLayout.setVisibility(View.INVISIBLE);
         warningLayout.setVisibility(View.INVISIBLE);
         connectButton.setVisibility(View.INVISIBLE);
+        connectionStatusImage.setImageResource(R.drawable.connection_none);
 
         if ( DeviceManager.getInstance().hasLastDevice() ) {
             deviceNameLayout.setVisibility(View.VISIBLE);
             deviceNameText.setText(DeviceManager.getInstance().getCurrentDevice().getName());
             if ( DeviceManager.getInstance().isDeviceConnected() ) {
-                warningLayout.setVisibility(View.VISIBLE);
-                warningText.setText("DEVICE NOT CONNECTED");
+                connectionStatusImage.setImageResource(R.drawable.connection_good);
             }
-        } else {
+        }
+        else {
             warningLayout.setVisibility(View.VISIBLE);
             warningText.setText("NO DEVICE CONNECTED");
             connectButton.setVisibility(View.VISIBLE);
