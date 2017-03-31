@@ -35,19 +35,18 @@ public class HomeFragment extends Fragment {
 
 
     Button connectButton;
-    Button setMicroclimateButton;
-    Button syncTimeButton;
+    Button setMicroclimateButton, syncTimeButton, syncDataButton;
     RelativeLayout warningLayout;
     RelativeLayout deviceNameLayout;
     Button unlinkButton;
     TextView warningText;
     TextView deviceNameText;
-    TextView phoneTimeText, deviceTimeText;
+    TextView phoneTimeText, deviceTimeText, syncTimeText, readingCountText;
 
     AlertDialog.Builder builder;
 
-    final Handler handler = new Handler();
-    Runnable aliveCheck;
+    final Handler deviceInfoUpdateHandler = new Handler();
+    Runnable deviceInfoUpdateRunnable;
 
 
     public HomeFragment() {
@@ -78,16 +77,24 @@ public class HomeFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
         connectButton = (Button)v.findViewById(R.id.button_connect);
-        setMicroclimateButton = (Button)v.findViewById(R.id.button_set_microclimate);
-        syncTimeButton = (Button)v.findViewById(R.id.button_sync_time);
+
         warningLayout = (RelativeLayout) v.findViewById(R.id.layout_warning);
         deviceNameLayout = (RelativeLayout) v.findViewById(R.id.layout_last_device);
         unlinkButton = (Button) v.findViewById(R.id.button_unlink);
         warningText = (TextView) v.findViewById(R.id.text_warning);
         deviceNameText = (TextView) v.findViewById(R.id.text_device_name);
 
+        // Status card
         phoneTimeText = (TextView) v.findViewById(R.id.text_phone_time);
         deviceTimeText = (TextView) v.findViewById(R.id.text_device_time);
+        syncTimeText = (TextView) v.findViewById(R.id.text_sync_time);
+        readingCountText = (TextView) v.findViewById(R.id.text_reading_count);
+
+        syncTimeText.setText(DateFormat.getDateTimeInstance().format(new Date(1490830040000L)));
+
+        setMicroclimateButton = (Button)v.findViewById(R.id.button_set_microclimate);
+        syncTimeButton = (Button)v.findViewById(R.id.button_sync_time);
+        syncDataButton = (Button)v.findViewById(R.id.button_get_readings);
 
 
         connectButton.setOnClickListener(new View.OnClickListener() {
@@ -123,9 +130,14 @@ public class HomeFragment extends Fragment {
         syncTimeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if ( !DeviceManager.getInstance().isDeviceConnected() ) {
+                    Toast.makeText(getContext(), "No device connected", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 Date currentTime = new Date();
                 long timeUnix = currentTime.getTime() + 3; // The 3 seconds is to offset for network delay
-                byte [] timeBytes = ByteUtils.androidLongToAndroidLong(timeUnix);
+                byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(timeUnix);
 
                 byte [] bytes = new byte[6];
                 bytes[0] = BTPacket.TYPE_SET_TIME;
@@ -138,6 +150,27 @@ public class HomeFragment extends Fragment {
                 DeviceManager.getInstance().getBluetoothService().write(bytes);
 
                 Toast.makeText(getContext(), "Syncing time", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        syncDataButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if ( !DeviceManager.getInstance().isDeviceConnected() ) {
+                    Toast.makeText(getContext(), "No device connected", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                byte [] bytes = new byte[6];
+                bytes[0] = BTPacket.TYPE_GET_READINGS;
+                bytes[1] = 4;
+                byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(1490830040000L);
+                bytes[2] = timeBytes[0];
+                bytes[3] = timeBytes[1];
+                bytes[4] = timeBytes[2];
+                bytes[5] = timeBytes[3];
+
+                DeviceManager.getInstance().getBluetoothService().write(bytes);
+                Toast.makeText(getContext(), "Asking for readings", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -158,7 +191,7 @@ public class HomeFragment extends Fragment {
         });
 
 
-        aliveCheck = new Runnable() {
+        deviceInfoUpdateRunnable = new Runnable() {
             @SuppressLint("InlinedApi")
             @Override
             public void run() {
@@ -173,12 +206,14 @@ public class HomeFragment extends Fragment {
 //                    Log.d(TAG, ByteUtils.byteArrayToString(timeBytes));
                     phoneTimeText.setText(DateFormat.getDateTimeInstance().format(currentTime));
                     Device currentDevice = DeviceManager.getInstance().getCurrentDevice();
+                    currentDevice.incrementSecond();
                     if ( currentDevice == null ) {
                         deviceTimeText.setText("No device connected");
+                        readingCountText.setText("No device connected");
                     } else {
                         deviceTimeText.setText(DateFormat.getDateTimeInstance().format(currentDevice.getDeviceTime()));
+                        readingCountText.setText(""+DeviceManager.getInstance().getPendingReadings());
                     }
-
                 }
                 catch (Exception e) {
                     // TODO: handle exception
@@ -186,12 +221,12 @@ public class HomeFragment extends Fragment {
                 }
                 finally {
                     //also call the same runnable to call it at regular interval
-                    handler.postDelayed(this, 1000);
+                    deviceInfoUpdateHandler.postDelayed(deviceInfoUpdateRunnable, 1000);
                 }
             }
         };
 
-        aliveCheck.run();
+        deviceInfoUpdateHandler.post(deviceInfoUpdateRunnable);
 
         return v;
     }

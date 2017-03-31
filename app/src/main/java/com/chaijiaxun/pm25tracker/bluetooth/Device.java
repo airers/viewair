@@ -1,6 +1,7 @@
 package com.chaijiaxun.pm25tracker.bluetooth;
 
 import android.bluetooth.BluetoothDevice;
+import android.util.Log;
 
 import java.util.Date;
 
@@ -9,6 +10,7 @@ import java.util.Date;
  */
 
 public class Device {
+    private final String TAG = "Device";
     String name;
     String uuid;
     int microclimate;
@@ -57,5 +59,9 @@ public class Device {
 
     public Date getDeviceTime() {
         return deviceTime;
+    }
+
+    public void incrementSecond() {
+        deviceTime.setTime(deviceTime.getTime()+500);
     }
 }

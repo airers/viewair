@@ -100,7 +100,8 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_weight="1"
@@ -109,14 +110,16 @@
                             <TextView
                                 android:id="@+id/text_device_time"
                                 android:layout_width="0dp"
-                                android:layout_weight="1"
+                                android:layout_weight="1.5"
                                 android:layout_height="wrap_content"
+                                android:textSize="20sp"
                                 android:text="23623623623"/>
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_weight="1"
@@ -125,24 +128,63 @@
                             <TextView
                                 android:id="@+id/text_phone_time"
                                 android:layout_width="0dp"
-                                android:layout_weight="1"
+                                android:layout_weight="1.5"
                                 android:layout_height="wrap_content"
+                                android:textSize="20sp"
                                 android:text="23623623623"/>
                         </LinearLayout>
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
                             <TextView
                                 android:layout_width="0dp"
                                 android:layout_weight="1"
                                 android:layout_height="wrap_content"
-                                android:text="Microclimate: "/>
+                                android:text="Last synced: "/>
+                            <TextView
+                                android:id="@+id/text_sync_time"
+                                android:layout_width="0dp"
+                                android:layout_weight="1.5"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:text="23623623623"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="New readings:"/>
+                            <TextView
+                                android:id="@+id/text_reading_count"
+                                android:layout_width="0dp"
+                                android:layout_weight="1.5"
+                                android:layout_height="wrap_content"
+                                android:textSize="20sp"
+                                android:text="0"/>
+                        </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_weight="1"
+                                android:layout_height="wrap_content"
+                                android:text="Environment: "/>
                             <TextView
                                 android:id="@+id/text_device_microclimate"
                                 android:layout_width="0dp"
-                                android:layout_weight="1"
+                                android:layout_weight="1.5"
                                 android:layout_height="wrap_content"
+                                android:textSize="20sp"
                                 android:text="Indoors"/>
                         </LinearLayout>
                     </LinearLayout>
@@ -152,13 +194,18 @@
                         android:layout_height="wrap_content"
                         android:gravity="right"
                         android:orientation="horizontal">
-
+                        <Button
+                            android:id="@+id/button_get_readings"
+                            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sync data" />
                         <Button
                             android:id="@+id/button_set_microclimate"
                             style="@style/Widget.AppCompat.Button.Borderless.Colored"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Choose Microclimate" />
+                            android:text="Set Environment" />
                         <Button
                             android:id="@+id/button_sync_time"
                             style="@style/Widget.AppCompat.Button.Borderless.Colored"

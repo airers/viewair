@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
+import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
 
 import java.util.ArrayList;
@@ -25,6 +26,8 @@ public class DeviceManager {
     private BluetoothService bluetoothService;
     boolean receivedAck;
     int connectionStatus = 0;
+
+    int pendingReadings = 0;
 
     final Handler handler = new Handler();
     Runnable aliveCheck;
@@ -53,7 +56,7 @@ public class DeviceManager {
             @Override
             public void run() {
                 Log.d(TAG, "Alive Check");
-                if ( currentDevice == null || bluetoothService == null ) {
+                if ( !isDeviceConnected() ) {
                     return;
                 }
                 if ( !receivedAck ) {
@@ -78,7 +81,7 @@ public class DeviceManager {
                 }
                 finally {
                     //also call the same runnable to call it at regular interval
-                    handler.postDelayed(this, 2000);
+                    handler.postDelayed(this, 5000);
                 }
             }
         };
@@ -90,10 +93,10 @@ public class DeviceManager {
         byte length = data.get(1);
         switch ( type ) {
             case BTPacket.TYPE_CONNECTION_ACK:
-                Log.d(TAG, "Connection still active");
-                Log.d(TAG, "Length: " + length);
-
-                Log.d(TAG, "Actual Length: " + data.size());
+//                Log.d(TAG, "Connection still active");
+//                Log.d(TAG, "Length: " + length);
+//
+//                Log.d(TAG, "Actual Length: " + data.size());
                 receivedAck = true;
                 if ( data.size() > 6 ) {
                     byte [] longData = {
@@ -102,9 +105,18 @@ public class DeviceManager {
                             data.get(4),
                             data.get(5)
                     };
-                    long deviceTimestamp = ByteUtils.arduinoLongToAndroidLong(longData);
+                    long deviceTimestamp = ByteUtils.arduinoLongTSToAndroidLongTS(longData);
                     currentDevice.setDeviceTime(deviceTimestamp);
-                    Log.d(TAG, "Timestamp " + deviceTimestamp);
+//                    Log.d(TAG, "Timestamp " + deviceTimestamp);
+                }
+                break;
+            case BTPacket.TYPE_READING_COUNT:
+                Log.d(TAG, ByteUtils.byteArrayToString(data));
+                Log.d(TAG, "" + data.size());
+                if ( data.size() > 4 ) {
+                    byte [] countBytes = { data.get(2), data.get(3) };
+                    pendingReadings = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
+                    Log.d(TAG, "Reading count received: " + pendingReadings);
                 }
                 break;
             case BTPacket.TYPE_MICROCLIMATE_PACKET:
@@ -133,7 +145,7 @@ public class DeviceManager {
     }
 
     public boolean isDeviceConnected() {
-        return false;
+        return currentDevice != null && bluetoothService != null;
     }
 
     public Device getCurrentDevice() {
@@ -163,5 +175,9 @@ public class DeviceManager {
         byte mc = (byte)microclimate;
         byte [] bytes = {BTPacket.TYPE_SET_MICROCLIMATE, mc};
         this.bluetoothService.write(bytes);
+    }
+
+    public int getPendingReadings() {
+        return pendingReadings;
     }
 }
