@@ -111,19 +111,61 @@ public class DeviceManager {
                 }
                 break;
             case BTPacket.TYPE_READING_COUNT:
-                Log.d(TAG, ByteUtils.byteArrayToString(data));
-                Log.d(TAG, "" + data.size());
+//                Log.d(TAG, ByteUtils.byteArrayToString(data));
+//                Log.d(TAG, "Size: " + data.size());
                 if ( data.size() > 4 ) {
-                    byte [] countBytes = { data.get(2), data.get(3) };
+                    byte [] countBytes = extract2Bytes(data, 2);
                     pendingReadings = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
                     Log.d(TAG, "Reading count received: " + pendingReadings);
+
+                    byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(1490830040000L);
+
+                    byte [] bytes = new byte[8];
+                    bytes[0] = BTPacket.TYPE_READY_TO_RECEIVE;
+                    bytes[1] = 6;
+                    bytes[2] = timeBytes[0];
+                    bytes[3] = timeBytes[1];
+                    bytes[4] = timeBytes[2];
+                    bytes[5] = timeBytes[3];
+                    bytes[6] = data.get(2);
+                    bytes[7] = data.get(3);
+
+                    bluetoothService.write(bytes);
                 }
+
+
                 break;
+            case BTPacket.TYPE_READING_PACKET:
+                Log.d(TAG, ByteUtils.byteArrayToString(data));
+                Log.d(TAG, "Size: " + data.size());
+                if ( data.size() > 25 ) {
+                    byte [] timeBytes       = extract4Bytes(data, 0);
+                    byte [] readingBytes    = extract4Bytes(data, 4);
+                    byte [] latBytes        = extract4Bytes(data, 8);
+                    byte [] lonBytes        = extract4Bytes(data, 12);
+                    byte [] accBytes        = extract4Bytes(data, 16);
+                    byte [] eleBytes        = extract4Bytes(data, 20);
+                    byte microclimate       = data.get(24);
+
+                    //TODO: Convert and add
+                }
             case BTPacket.TYPE_MICROCLIMATE_PACKET:
                 int microclimate = (int)data.get(2);
                 currentDevice.setMicroclimate(microclimate);
+
+
                 break;
         }
+    }
+
+
+    private byte [] extract2Bytes(ArrayList<Byte> data, int from) {
+        byte [] bytes = { data.get(from), data.get(from+1) };
+        return bytes;
+    }
+    private byte [] extract4Bytes(ArrayList<Byte> data, int from) {
+        byte [] bytes = { data.get(from), data.get(from+1), data.get(from+2), data.get(from+3) };
+        return bytes;
     }
     public void unsetCurrentDevice() {
         if ( bluetoothService != null ) {

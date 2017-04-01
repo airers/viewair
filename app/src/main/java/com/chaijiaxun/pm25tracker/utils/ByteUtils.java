@@ -59,6 +59,13 @@ public class ByteUtils {
         return ((bytes[0] & 0xff) << 8) | (bytes[1] & 0xff);
     }
 
+    public static byte[] int16ToByteArray(int a) {
+        byte[] ret = new byte[2];
+        ret[1] = (byte) (a & 0xFF);
+        ret[0] = (byte) ((a >> 8) & 0xFF);
+        return ret;
+    }
+
     public static byte[] reverseArray(byte [] bytes ) {
         for(int i = 0; i < bytes.length / 2; i++)
         {
@@ -66,6 +73,12 @@ public class ByteUtils {
             bytes[i] = bytes[bytes.length - i - 1];
             bytes[bytes.length - i - 1] = temp;
         }
+        return bytes;
+    }
+
+    public static byte[] androidIntToArduinoUint16(int d) {
+        byte [] bytes = int16ToByteArray(d);
+        bytes = reverseArray(bytes);
         return bytes;
     }
 
