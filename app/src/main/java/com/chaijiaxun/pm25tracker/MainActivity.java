@@ -183,6 +183,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_readings:
                 setTitle("Readings");
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, ReadingsFragment.newInstance())
+                        .addToBackStack("Readings")
+                        .commit();
 
                 break;
             case R.id.nav_settings:
