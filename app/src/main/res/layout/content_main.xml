@@ -72,9 +72,19 @@
                     android:id="@+id/button_locate"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:onClick="clickLocation"
                     android:text="Locate" />
+                <Button
+                    android:id="@+id/button_db_seed"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DB Seed" />
             </LinearLayout>
+
+            <Spinner
+                android:id="@+id/spinner_reading_filter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
 
             <Button
                 android:id="@+id/button_save"
@@ -85,7 +95,9 @@
             <ListView
                 android:id="@+id/readings_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
         </LinearLayout>
     </RelativeLayout>
 </FrameLayout>
