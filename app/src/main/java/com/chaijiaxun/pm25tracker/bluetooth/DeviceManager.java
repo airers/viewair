@@ -137,8 +137,8 @@ public class DeviceManager {
                     bytes[3] = timeBytes[1];
                     bytes[4] = timeBytes[2];
                     bytes[5] = timeBytes[3];
-                    bytes[6] = 5;
-                    bytes[7] = 0;
+                    bytes[6] = data.get(2);
+                    bytes[7] = data.get(3);
 
                     bluetoothService.write(bytes);
 
