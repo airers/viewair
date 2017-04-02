@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SensorReading extends SugarRecord{
     long time;
-    int pollutantLevel;
+    double pollutantLevel;
     int microclimate;
     float locationLat;
     float locationLon;
@@ -18,7 +18,7 @@ public class SensorReading extends SugarRecord{
 
     }
 
-    public SensorReading(Date time, int pollutantLevel, int microclimate, float locationLat, float locationLon, int locationAccuracy) {
+    public SensorReading(Date time, double pollutantLevel, int microclimate, float locationLat, float locationLon, int locationAccuracy) {
         this.time = time.getTime();
         this.pollutantLevel = pollutantLevel;
         this.microclimate = microclimate;
@@ -29,6 +29,30 @@ public class SensorReading extends SugarRecord{
     @Override
     public String toString() {
         return pollutantLevel + " " + microclimate + " " + locationLat + " " + locationLon + " " + time;
+    }
+
+    public long getTime() {
+        return time;
+    }
+
+    public double getPollutantLevel() {
+        return pollutantLevel;
+    }
+
+    public int getMicroclimate() {
+        return microclimate;
+    }
+
+    public float getLocationLat() {
+        return locationLat;
+    }
+
+    public float getLocationLon() {
+        return locationLon;
+    }
+
+    public int getLocationAccuracy() {
+        return locationAccuracy;
     }
 
     public static List<SensorReading> getList() {

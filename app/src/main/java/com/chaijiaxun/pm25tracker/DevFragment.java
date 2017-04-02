@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.chaijiaxun.pm25tracker.database.DatabaseSeed;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 
 import java.util.ArrayList;
@@ -58,6 +59,13 @@ public class DevFragment extends Fragment {
             }
         });
 
+        final Button dbSeedButton = (Button) view.findViewById(R.id.button_db_seed);
+        dbSeedButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                clickDbSeed();
+            }
+        });
+
         sensorReading = (EditText) view.findViewById(R.id.sensor_reading);
         readingList = (ListView) view.findViewById(R.id.readings_view);
         loadReadings();
@@ -71,10 +79,16 @@ public class DevFragment extends Fragment {
         loadReadings();
     }
 
+    public void clickDbSeed() {
+        DatabaseSeed dbSeed = new DatabaseSeed();
+        dbSeed.seed(10);
+        loadReadings();
+    }
+
     public void saveReading() {
         Log.d("MainActivity", "Saving reading");
         String text = sensorReading.getText().toString();
-        int readingInt;
+        float readingInt;
         try {
             readingInt = Integer.parseInt(text);
         } catch (NumberFormatException e) {
