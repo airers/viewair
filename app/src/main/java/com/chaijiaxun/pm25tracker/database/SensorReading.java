@@ -6,24 +6,30 @@ import com.orm.SugarRecord;
 import java.util.Date;
 import java.util.List;
 
-public class SensorReading extends SugarRecord{
-    long time;
-    double pollutantLevel;
-    int microclimate;
-    float locationLat;
-    float locationLon;
-    int locationAccuracy;
+public class SensorReading extends SugarRecord {
+    private long time;
+    private float pollutantLevel;
+    private int microclimate;
+    private float locationLat;
+    private float locationLon;
+    private float locationElevation;
+    private float locationAccuracy;
+
+    private long localDeviceID;
+
 
     public SensorReading(){
 
     }
 
-    public SensorReading(Date time, double pollutantLevel, int microclimate, float locationLat, float locationLon, int locationAccuracy) {
+    public SensorReading(long deviceID, Date time, float pollutantLevel, int microclimate, float locationLat, float locationLon, float locationElevation, float locationAccuracy) {
+        this.localDeviceID = deviceID;
         this.time = time.getTime();
         this.pollutantLevel = pollutantLevel;
         this.microclimate = microclimate;
         this.locationLat = locationLat;
         this.locationLon = locationLon;
+        this.locationElevation = locationElevation;
         this.locationAccuracy = locationAccuracy;
     }
     @Override
@@ -51,7 +57,11 @@ public class SensorReading extends SugarRecord{
         return locationLon;
     }
 
-    public int getLocationAccuracy() {
+    public float getLocationElevation() {
+        return locationElevation;
+    }
+
+    public float getLocationAccuracy() {
         return locationAccuracy;
     }
 

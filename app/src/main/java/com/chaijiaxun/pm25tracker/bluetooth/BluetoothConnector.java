@@ -25,7 +25,11 @@ public class BluetoothConnector extends Thread {
         mmDevice = device;
         ParcelUuid [] uuids = mmDevice.getUuids();
 
-        Log.d(TAG, "UUID Count " + uuids.length);
+        if ( uuids != null ) {
+            Log.d(TAG, "UUID Count " + uuids.length);
+        } else {
+            Log.e(TAG, "No UUIDS");
+        }
 
         this.callback = callback;
 
@@ -37,6 +41,8 @@ public class BluetoothConnector extends Thread {
             tmp = device.createRfcommSocketToServiceRecord(uuids[0].getUuid());
         } catch (IOException e) {
             Log.e(TAG, "Socket's create() method failed", e);
+        } catch ( Exception e ) {
+            Log.e(TAG, e.toString());
         }
         mmSocket = tmp;
     }
@@ -44,6 +50,10 @@ public class BluetoothConnector extends Thread {
     public void run() {
         // Cancel discovery because it otherwise slows down the connection.
 //        mBluetoothAdapter.cancelDiscovery();
+        if ( mmSocket == null ) {
+            callback.unableToConnect("No UUID");
+            return;
+        }
         Log.d(TAG, "Connecting");
         try {
             // Connect to the remote device through the socket. This call blocks
@@ -52,6 +62,7 @@ public class BluetoothConnector extends Thread {
         } catch (IOException connectException) {
             // Unable to connect; close the socket and return.
             Log.d(TAG, "Unable to connect to socket");
+            callback.unableToConnect("");
             try {
                 mmSocket.close();
             } catch (IOException closeException) {

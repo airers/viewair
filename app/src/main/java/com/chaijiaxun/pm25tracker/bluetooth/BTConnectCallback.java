@@ -7,4 +7,5 @@ import android.bluetooth.BluetoothSocket;
  */
 public interface BTConnectCallback {
     void deviceConnected(BluetoothSocket s);
+    void unableToConnect(final String message);
 }

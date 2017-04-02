@@ -5,10 +5,8 @@ import java.util.Date;
 import java.util.Random;
 
 public class DatabaseSeed {
-    public DatabaseSeed(){
 
-    }
-    public void seed(int num){
+    public static void seed(int num){
         Calendar date = Calendar.getInstance();
         long t= date.getTimeInMillis();
         Random rn = new Random();
@@ -22,9 +20,10 @@ public class DatabaseSeed {
             int microclimateRandom = rand.nextInt(2) + 1;
             float latRandom = (float) ((rand.nextInt(200000)*0.000001) + 1.267951);
             float lonRandom = (float) ((rand.nextInt(500000)*0.000001) + 103.573813);
-            int locAccRandom = 0;
-            SensorReading newReading = new SensorReading(new Date(t + ((rn.nextInt(10) + 1)* 60000)), pollutantRandom,microclimateRandom,
-                    latRandom, lonRandom, locAccRandom);
+            float locEleRandom = (float) (rand.nextInt(100) - 20);
+            float locAccRandom = (float) (rand.nextInt(7) + 1);
+            SensorReading newReading = new SensorReading(0, new Date(t + ((rn.nextInt(10) + 1)* 60000)), pollutantRandom,microclimateRandom,
+                    latRandom, lonRandom, locEleRandom, locAccRandom);
             newReading.save();
         }
     }
