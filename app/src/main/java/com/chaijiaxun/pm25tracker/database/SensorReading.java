@@ -31,6 +31,30 @@ public class SensorReading extends SugarRecord{
         return pollutantLevel + " " + microclimate + " " + locationLat + " " + locationLon + " " + time;
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public double getPollutantLevel() {
+        return pollutantLevel;
+    }
+
+    public int getMicroclimate() {
+        return microclimate;
+    }
+
+    public float getLocationLat() {
+        return locationLat;
+    }
+
+    public float getLocationLon() {
+        return locationLon;
+    }
+
+    public int getLocationAccuracy() {
+        return locationAccuracy;
+    }
+
     public static List<SensorReading> getList() {
         return SensorReading.listAll(SensorReading.class);
     }

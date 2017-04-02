@@ -1,6 +1,8 @@
 package com.chaijiaxun.pm25tracker;
 
 
+import android.graphics.Color;
+import android.hardware.Sensor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -9,11 +11,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.chaijiaxun.pm25tracker.database.SensorReading;
+import com.chaijiaxun.pm25tracker.utils.AppData;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.TileOverlay;
+import com.google.android.gms.maps.model.TileOverlayOptions;
+import com.google.maps.android.heatmaps.Gradient;
+import com.google.maps.android.heatmaps.HeatmapTileProvider;
+import com.google.maps.android.heatmaps.WeightedLatLng;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -64,29 +77,73 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         FragmentManager fm = getChildFragmentManager();
-        SupportMapFragment fragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
-        if (fragment == null) {
-            fragment = SupportMapFragment.newInstance();
-            fm.beginTransaction().replace(R.id.map, fragment).commit();
+        SupportMapFragment mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            fm.beginTransaction().replace(R.id.map, mapFragment).commit();
         }
-        /*AppData.getInstance().setMapFragment((MapFragment) getActivity().getFragmentManager()
-                .findFragmentById(R.id.map));
-        AppData.getInstance().getMapFragment().getMapAsync(this);
-        super.onViewCreated(view, savedInstanceState);*/
+        mapFragment.getMapAsync(MapHistoryFragment.this); // Calls the onMapReady method
+        super.onViewCreated(view, savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-
         return inflater.inflate(R.layout.fragment_map_history, container, false);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        List<SensorReading> readingsList = SensorReading.listAll(SensorReading.class);
+        String[] values;
+        /*if ( readingsList.size() > 0 ) {
+            values = new String[readingsList.size()];
+            for ( int i = 0; i < readingsList.size(); i++ ) {
+                googleMap.addMarker(new MarkerOptions()
+                        .position(new LatLng(readingsList.get(i).getLocationLat(),
+                                readingsList.get(i).getLocationLon()))
+                        .title("Marker " + i));
+                values[i] = readingsList.get(i).toString();
+            }
+        }
+
         googleMap.addMarker(new MarkerOptions()
                 .position(new LatLng(1.291149, 103.779720))
                 .title("Marker"));
+
+        */
+        LatLng singapore = new LatLng(1.354977, 103.806936);
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,10));
+
+        ArrayList<WeightedLatLng> list = new ArrayList<WeightedLatLng>();
+        if ( readingsList.size() > 0 ) {
+            values = new String[readingsList.size()];
+            for (int i = 0; i < readingsList.size(); i++) {
+                list.add(new WeightedLatLng(new LatLng(readingsList.get(i).getLocationLat(),
+                        readingsList.get(i).getLocationLon()),readingsList.get(i).getPollutantLevel()/5));
+            }
+        }
+
+
+        int[] colors = {
+                Color.rgb(102, 225, 0), // green
+                Color.rgb(255, 0, 0)    // red
+        };
+
+        float[] startPoints = {
+                0.2f, 1f
+        };
+
+        Gradient gradient = new Gradient(colors, startPoints);
+        HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
+                .weightedData(list)
+                .gradient(gradient)
+                .radius(30)
+                .opacity(0.8)
+                .build();
+        // Add a tile overlay to the map, using the heat map tile provider.
+        TileOverlay mOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
 }
