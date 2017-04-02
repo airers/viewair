@@ -4,12 +4,15 @@ package com.chaijiaxun.pm25tracker;
 import android.graphics.Color;
 import android.hardware.Sensor;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CalendarView;
 
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.utils.AppData;
@@ -25,6 +28,7 @@ import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
 
+import java.io.Console;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -67,6 +71,8 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
+
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
@@ -78,6 +84,7 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         FragmentManager fm = getChildFragmentManager();
         SupportMapFragment mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+
 
         if (mapFragment == null) {
             mapFragment = SupportMapFragment.newInstance();
@@ -91,42 +98,35 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_map_history, container, false);
+        View v = inflater.inflate(R.layout.fragment_map_history, container, false);
+        CalendarView cv = (CalendarView) v.findViewById(R.id.calendarView);
+        cv.setOnDateChangeListener(new CalendarView.OnDateChangeListener(){
+            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+                Log.d("OnDateChangeListener", "Date changed");
+
+                /*if(cv.getDate() != date){
+                    date = cv.getDate();
+                    Toast.makeText(view.getContext(), "Year=" + year + " Month=" + month + " Day=" + dayOfMonth, Toast.LENGTH_LONG).show();
+                }*/
+            }
+        });
+        return v;
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        List<SensorReading> readingsList = SensorReading.listAll(SensorReading.class);
-        String[] values;
-        /*if ( readingsList.size() > 0 ) {
-            values = new String[readingsList.size()];
-            for ( int i = 0; i < readingsList.size(); i++ ) {
-                googleMap.addMarker(new MarkerOptions()
-                        .position(new LatLng(readingsList.get(i).getLocationLat(),
-                                readingsList.get(i).getLocationLon()))
-                        .title("Marker " + i));
-                values[i] = readingsList.get(i).toString();
-            }
-        }
 
-        googleMap.addMarker(new MarkerOptions()
-                .position(new LatLng(1.291149, 103.779720))
-                .title("Marker"));
-
-        */
         LatLng singapore = new LatLng(1.354977, 103.806936);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,10));
 
+        List<SensorReading> readingsList = SensorReading.listAll(SensorReading.class);
         ArrayList<WeightedLatLng> list = new ArrayList<WeightedLatLng>();
         if ( readingsList.size() > 0 ) {
-            values = new String[readingsList.size()];
             for (int i = 0; i < readingsList.size(); i++) {
                 list.add(new WeightedLatLng(new LatLng(readingsList.get(i).getLocationLat(),
                         readingsList.get(i).getLocationLon()),readingsList.get(i).getPollutantLevel()/5));
             }
         }
-
-
         int[] colors = {
                 Color.rgb(102, 225, 0), // green
                 Color.rgb(255, 0, 0)    // red
@@ -145,5 +145,8 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
         TileOverlay mOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+    }
+    private void updateMap(){
+
     }
 }

@@ -80,6 +80,12 @@
                     android:text="DB Seed" />
             </LinearLayout>
 
+            <Spinner
+                android:id="@+id/spinner_reading_filter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp" />
+
             <Button
                 android:id="@+id/button_save"
                 android:layout_width="match_parent"
@@ -89,7 +95,9 @@
             <ListView
                 android:id="@+id/readings_view"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                android:layout_weight="1"/>
+
         </LinearLayout>
     </RelativeLayout>
 </FrameLayout>
