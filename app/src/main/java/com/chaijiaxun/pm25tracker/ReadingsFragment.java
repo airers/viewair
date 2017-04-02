@@ -51,11 +51,6 @@ public class ReadingsFragment extends Fragment{
         View view = inflater.inflate(R.layout.content_main, container, false);
 
         final Button saveButton = (Button) view.findViewById(R.id.button_save);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                saveReading();
-            }
-        });
 
         final Button locateButton = (Button) view.findViewById(R.id.button_locate);
         locateButton.setOnClickListener(new View.OnClickListener() {
@@ -116,25 +111,6 @@ public class ReadingsFragment extends Fragment{
     public void clickDbSeed() {
         DatabaseSeed dbSeed = new DatabaseSeed();
         dbSeed.seed(10);
-        loadReadings();
-    }
-
-    public void saveReading() {
-        Log.d("MainActivity", "Saving reading");
-        String text = sensorReading.getText().toString();
-        float readingInt;
-        try {
-            readingInt = Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            readingInt = 0;
-        }
-
-        Date date = new Date();
-        SensorReading reading = new SensorReading(date, readingInt, 0, (float)lat, (float)lon, 0);
-
-        reading.save();
-        Log.d("MainActivity", reading.toString());
-
         loadReadings();
     }
 

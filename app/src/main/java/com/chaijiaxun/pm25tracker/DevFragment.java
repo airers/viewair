@@ -115,8 +115,7 @@ public class DevFragment extends Fragment {
     }
 
     public void clickDbSeed() {
-        DatabaseSeed dbSeed = new DatabaseSeed();
-        dbSeed.seed(10);
+        DatabaseSeed.seed(10);
         loadReadings();
     }
 
@@ -131,7 +130,7 @@ public class DevFragment extends Fragment {
         }
 
         Date date = new Date();
-        SensorReading reading = new SensorReading(date, readingInt, 0, (float)lat, (float)lon, 0);
+        SensorReading reading = new SensorReading(0, date, readingInt, 0, (float)lat, (float)lon, 0, 0);
 
         reading.save();
         Log.d("MainActivity", reading.toString());

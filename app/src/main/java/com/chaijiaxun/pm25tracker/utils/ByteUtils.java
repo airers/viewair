@@ -47,10 +47,10 @@ public class ByteUtils {
         return sb.toString();
     }
 
-    public static byte[] byteArrayToFloat(float f) {
+    public static byte[] floatToByteArray(float f) {
         return ByteBuffer.allocate(4).putFloat(f).array();
     }
-    public static float floatToByteArray(byte[] bytes) {
+    public static float byteArrayToFloat(byte[] bytes) {
         if ( bytes == null || bytes.length != 4 ) return 0;
         return ByteBuffer.wrap(bytes).getFloat();
     }

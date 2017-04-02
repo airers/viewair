@@ -5,10 +5,12 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
+import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Manages the device connection to the bluetooth device
@@ -61,7 +63,7 @@ public class DeviceManager {
         aliveCheck = new Runnable() {
             @Override
             public void run() {
-                Log.d(TAG, "Alive Check");
+//                Log.d(TAG, "Alive Check");
                 if ( !isDeviceConnected() ) {
                     return;
                 }
@@ -94,7 +96,7 @@ public class DeviceManager {
     }
 
     public void processPacket(ArrayList<Byte> data) {
-        Log.d(TAG, "Process packet");
+//        Log.d(TAG, "Process packet");
         byte type = data.get(0);
         byte length = data.get(1);
         switch ( type ) {
@@ -135,8 +137,8 @@ public class DeviceManager {
                     bytes[3] = timeBytes[1];
                     bytes[4] = timeBytes[2];
                     bytes[5] = timeBytes[3];
-                    bytes[6] = data.get(2);
-                    bytes[7] = data.get(3);
+                    bytes[6] = 5;
+                    bytes[7] = 0;
 
                     bluetoothService.write(bytes);
 
@@ -148,15 +150,25 @@ public class DeviceManager {
                 Log.d(TAG, ByteUtils.byteArrayToString(data));
                 Log.d(TAG, "Size: " + data.size());
                 if ( data.size() > 25 ) {
-                    byte [] timeBytes       = extract4Bytes(data, 0);
-                    byte [] readingBytes    = extract4Bytes(data, 4);
-                    byte [] latBytes        = extract4Bytes(data, 8);
-                    byte [] lonBytes        = extract4Bytes(data, 12);
-                    byte [] accBytes        = extract4Bytes(data, 16);
-                    byte [] eleBytes        = extract4Bytes(data, 20);
+                    byte [] timeBytes       = extract4Bytes(data, 2);
+                    byte [] readingBytes    = extract4Bytes(data, 2+4);
+                    byte [] latBytes        = extract4Bytes(data, 2+8);
+                    byte [] lonBytes        = extract4Bytes(data, 2+12);
+                    byte [] accBytes        = extract4Bytes(data, 2+16);
+                    byte [] eleBytes        = extract4Bytes(data, 2+20);
                     byte microclimate       = data.get(24);
 
-                    //TODO: Convert and add
+                    long time = ByteUtils.arduinoLongTSToAndroidLongTS(timeBytes);
+                    float reading = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(readingBytes));
+                    float lat = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(latBytes));
+                    float lon = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(lonBytes));
+                    float acc = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(accBytes));
+                    float ele = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(eleBytes));
+                    int microclimateInt = (int) microclimate;
+                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
+
+                    SensorReading dbReading = new SensorReading(0, new Date(time), reading, microclimateInt, lat, lon, ele, acc);
+                    dbReading.save();
                 }
                 break;
             case BTPacket.TYPE_MICROCLIMATE_PACKET:
