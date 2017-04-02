@@ -165,10 +165,21 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "No device connected", Toast.LENGTH_SHORT).show();
                     return;
                 }
-                byte [] bytes = new byte[6];
+//                byte [] bytes = new byte[6];
+//                bytes[0] = BTPacket.TYPE_GET_READINGS;
+//                bytes[1] = 4;
+//                byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(1490830040000L);
+//                bytes[2] = timeBytes[0];
+//                bytes[3] = timeBytes[1];
+//                bytes[4] = timeBytes[2];
+//                bytes[5] = timeBytes[3];
+//
+//                DeviceManager.getInstance().getBluetoothService().write(bytes);
+
+                byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(0);
+                byte [] bytes = new byte[8];
                 bytes[0] = BTPacket.TYPE_GET_READINGS;
                 bytes[1] = 4;
-                byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(1490830040000L);
                 bytes[2] = timeBytes[0];
                 bytes[3] = timeBytes[1];
                 bytes[4] = timeBytes[2];

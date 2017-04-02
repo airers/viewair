@@ -39,15 +39,21 @@ public class DeviceManager {
         packetCallback = new BTPacketCallback() {
             @Override
             public void packetReceived(BluetoothSocket socket, byte[] data, int bytesReceived) {
+                byte[] CRLF = "\r\n".getBytes();
                 if ( data != null ) {
                     for (byte b: data) {
                         dataQueue.add(b);
+
+                        int size = dataQueue.size();
+                        if ( size > 2 ) {
+                            if ( dataQueue.get(size-2) == CRLF[0] && dataQueue.get(size-1) == CRLF[1]) {
+                                processPacket(dataQueue);
+                                dataQueue.clear();
+                            }
+                        }
                     }
-                    byte[] CRLF = "\r\n".getBytes();
-                    if ( dataQueue.size() > 2 && dataQueue.get(dataQueue.size() - 2) == CRLF[0] && dataQueue.get(dataQueue.size() - 1) == CRLF[1]) {
-                        processPacket(dataQueue);
-                        dataQueue.clear();
-                    }
+
+                    // Find first instance of CRLF
                 }
             }
         };
@@ -118,7 +124,9 @@ public class DeviceManager {
                     pendingReadings = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
                     Log.d(TAG, "Reading count received: " + pendingReadings);
 
-                    byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(1490830040000L);
+                    AppData.getInstance().setPacketsLeft(pendingReadings);
+
+                    byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(0);
 
                     byte [] bytes = new byte[8];
                     bytes[0] = BTPacket.TYPE_READY_TO_RECEIVE;
@@ -131,11 +139,12 @@ public class DeviceManager {
                     bytes[7] = data.get(3);
 
                     bluetoothService.write(bytes);
+
                 }
-
-
                 break;
             case BTPacket.TYPE_READING_PACKET:
+                AppData.getInstance().decrementPacketsLeft();
+                Log.d(TAG, "Packets left: " + AppData.getInstance().getPacketsLeft());
                 Log.d(TAG, ByteUtils.byteArrayToString(data));
                 Log.d(TAG, "Size: " + data.size());
                 if ( data.size() > 25 ) {
@@ -149,6 +158,7 @@ public class DeviceManager {
 
                     //TODO: Convert and add
                 }
+                break;
             case BTPacket.TYPE_MICROCLIMATE_PACKET:
                 int microclimate = (int)data.get(2);
                 currentDevice.setMicroclimate(microclimate);
