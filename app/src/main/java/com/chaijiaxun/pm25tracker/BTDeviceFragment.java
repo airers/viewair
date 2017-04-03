@@ -78,6 +78,7 @@ public class BTDeviceFragment extends Fragment {
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+                        AppData.getInstance().setMessageText("Connected");
                         Toast.makeText(getContext(), "Connected to " + s.getRemoteDevice().getName(), Toast.LENGTH_SHORT).show();
                         getFragmentManager().popBackStack();
                     }

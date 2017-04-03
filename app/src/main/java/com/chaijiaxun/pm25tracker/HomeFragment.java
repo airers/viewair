@@ -20,6 +20,7 @@ import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
 import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
 
 import java.text.DateFormat;
@@ -228,7 +229,7 @@ public class HomeFragment extends Fragment {
                         readingCountText.setText("No device connected");
                     } else {
                         deviceTimeText.setText(DateFormat.getDateTimeInstance().format(currentDevice.getDeviceTime()));
-                        readingCountText.setText(""+DeviceManager.getInstance().getPendingReadings());
+                        readingCountText.setText(""+ AppData.getInstance().getPacketsLeft());
                     }
                 }
                 catch (Exception e) {
