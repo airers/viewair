@@ -33,6 +33,9 @@ public class BTDeviceFragment extends Fragment {
 
     private static final String TAG = "BTDeviceFragment";
 
+//    private static final String ARG_AUTOCONNECT = "autoconnect";
+
+
     // TODO: Move into some bluetooth manager
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothConnector mBluetoothConnector;
@@ -40,6 +43,8 @@ public class BTDeviceFragment extends Fragment {
     private Button scanButton;
     private BluetoothDevice [] pairedDevices = new BluetoothDevice[0];
     private String[] pairedStrings;
+
+    private boolean autoConnect;
 
     private boolean connecting = false;
 
@@ -50,9 +55,20 @@ public class BTDeviceFragment extends Fragment {
     public BTDeviceFragment() {
         mBluetoothAdapter = AppData.getInstance().getBluetoothAdapter();
     }
+    public BTDeviceFragment(boolean autoConnect) {
+        mBluetoothAdapter = AppData.getInstance().getBluetoothAdapter();
+        this.autoConnect = autoConnect;
+//        if (getArguments() != null) {
+//            autoConnect = getArguments().getBoolean(ARG_AUTOCONNECT);
+//        }
+    }
 
-    public static BTDeviceFragment newInstance() {
-        BTDeviceFragment fragment = new BTDeviceFragment();
+    public static BTDeviceFragment newInstance(boolean autoConnect) {
+        Log.d(TAG, "Creating fragment: " + autoConnect);
+        BTDeviceFragment fragment = new BTDeviceFragment(autoConnect);
+//        Bundle args = new Bundle();
+//        args.putBoolean(ARG_AUTOCONNECT, autoConnect);
+//        fragment.setArguments(args);
         return fragment;
     }
 
@@ -74,6 +90,7 @@ public class BTDeviceFragment extends Fragment {
             @Override
             public void deviceConnected(final BluetoothSocket s) {
                 DeviceManager.getInstance().setBluetoothService(s);
+                AppData.getInstance().setLastDeviceUUID(s.getRemoteDevice().getAddress());
                 connecting = false;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -112,12 +129,25 @@ public class BTDeviceFragment extends Fragment {
         pairedDevices = mBluetoothAdapter.getBondedDevices().toArray(pairedDevices);
         pairedStrings = new String[pairedDevices.length];
         Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
+
+        String autoConnectTo = null;
+        if ( autoConnect ) {
+            Log.d(TAG, "Autoconnect set");
+            autoConnectTo = AppData.getInstance().getLastDeviceUUID();
+
+            Log.d(TAG, "Autoconnect to: " + autoConnectTo);
+        }
         if (pairedDevices.length > 0) {
             // There are paired devices. Get the name and address of each paired device.
             int index = 0;
             for (BluetoothDevice device : pairedDevices) {
                 String deviceName = device.getName();
                 String deviceHardwareAddress = device.getAddress(); // MAC address
+
+                if ( autoConnectTo != null && autoConnectTo.equals(deviceHardwareAddress) ) {
+                    connectTo(device);
+                }
+
                 pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
                 index++;
             }

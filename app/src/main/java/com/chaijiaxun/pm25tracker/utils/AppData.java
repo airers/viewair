@@ -2,12 +2,16 @@ package com.chaijiaxun.pm25tracker.utils;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 /**
  * Singleton class that stores all the global variables in the app
  */
 
 public class AppData {
+    public static final String PREFS_NAME = "ViewairPrefs";
+    public static final String LAST_DEVICE = "LastDevice";
+
     private BluetoothAdapter bluetoothAdapter;
     private int packetsLeft;
 
@@ -23,6 +27,19 @@ public class AppData {
     }
 
     private Context appContext;
+
+    public String getLastDeviceUUID() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        return settings.getString(LAST_DEVICE, null);
+    }
+    public void setLastDeviceUUID(String uuid) {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString(LAST_DEVICE, uuid);
+
+        // Commit the edits!
+        editor.apply();
+    }
     public void init(Context appContext) {
         this.appContext = appContext;
     }

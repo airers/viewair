@@ -18,7 +18,6 @@ import android.widget.Toast;
 
 import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
-import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
 
@@ -106,7 +105,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.content_frame, BTDeviceFragment.newInstance())
+                        .replace(R.id.content_frame, BTDeviceFragment.newInstance(true))
                         .addToBackStack("Bluetooth")
                         .commit();
             }
@@ -221,14 +220,13 @@ public class HomeFragment extends Fragment {
                     byte [] timeBytes = ByteUtils.intToByteArray(timeInt);
 //                    Log.d(TAG, ByteUtils.byteArrayToString(timeBytes));
                     phoneTimeText.setText(DateFormat.getDateTimeInstance().format(currentTime));
-                    Device currentDevice = DeviceManager.getInstance().getCurrentDevice();
-                    currentDevice.incrementSecond();
-                    if ( currentDevice == null ) {
+                    DeviceManager.getInstance().incrementSecond();
+                    if ( !DeviceManager.getInstance().isDeviceConnected() ) {
                         deviceTimeText.setText("No device connected");
                         readingCountText.setText("No device connected");
                     } else {
-                        deviceTimeText.setText(DateFormat.getDateTimeInstance().format(currentDevice.getDeviceTime()));
-                        readingCountText.setText(""+DeviceManager.getInstance().getPendingReadings());
+                        deviceTimeText.setText(DateFormat.getDateTimeInstance().format(DeviceManager.getInstance().getDeviceTime()));
+                        readingCountText.setText(""+DeviceManager.getInstance().getPendingReadingCount());
                     }
                 }
                 catch (Exception e) {
