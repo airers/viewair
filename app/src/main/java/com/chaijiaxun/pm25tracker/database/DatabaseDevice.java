@@ -10,9 +10,13 @@ import java.util.List;
  */
 
 public class DatabaseDevice extends SugarRecord {
-    String name; // The name of the bluetooth device
-    String uuid; // The UUID of the bluetooth device
-    String serverId; // The ID assigned by the server
+    private String name; // The name of the bluetooth device
+    private String uuid; // The UUID of the bluetooth device
+    private String serverId; // The ID assigned by the server
+
+    public DatabaseDevice(){
+
+    }
 
     public DatabaseDevice(String name, String uuid) {
         this.name = name;
