@@ -47,6 +47,8 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     private String mParam1;
     private String mParam2;
 
+    TileOverlay mOverlay;
+
     public MapHistoryFragment() {
         // Required empty public constructor
     }
@@ -100,14 +102,15 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_map_history, container, false);
         CalendarView cv = (CalendarView) v.findViewById(R.id.calendarView);
-        cv.setOnDateChangeListener(new CalendarView.OnDateChangeListener(){
+        cv.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+            @Override
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                Log.d("OnDateChangeListener", "Date changed");
-
-                /*if(cv.getDate() != date){
-                    date = cv.getDate();
-                    Toast.makeText(view.getContext(), "Year=" + year + " Month=" + month + " Day=" + dayOfMonth, Toast.LENGTH_LONG).show();
-                }*/
+                int d = dayOfMonth;
+                int m = month;
+                int y = year;
+                Log.d("Load Readings", String.valueOf(d));
+                Log.d("Load Readings", String.valueOf(m));
+                //curDate = String.valueOf(d);
             }
         });
         return v;
@@ -144,9 +147,10 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                 .opacity(0.8)
                 .build();
         // Add a tile overlay to the map, using the heat map tile provider.
-        TileOverlay mOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
+        mOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
     private void updateMap(){
+        mOverlay.remove();
 
     }
 }

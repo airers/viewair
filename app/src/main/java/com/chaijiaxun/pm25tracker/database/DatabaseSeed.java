@@ -17,7 +17,7 @@ public class DatabaseSeed {
         for(int i = 0; i < num; i++){
 
             int pollutantRandom = rand.nextInt(5) + 1;
-            int microclimateRandom = rand.nextInt(2) + 1;
+            int microclimateRandom = rand.nextInt(2) + 0;
             float latRandom = (float) ((rand.nextInt(200000)*0.000001) + 1.267951);
             float lonRandom = (float) ((rand.nextInt(500000)*0.000001) + 103.573813);
             float locEleRandom = (float) (rand.nextInt(100) - 20);
