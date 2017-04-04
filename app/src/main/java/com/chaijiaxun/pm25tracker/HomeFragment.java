@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
 
 import java.text.DateFormat;

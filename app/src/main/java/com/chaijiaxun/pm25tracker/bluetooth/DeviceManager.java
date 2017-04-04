@@ -92,6 +92,7 @@ public class DeviceManager {
                         if (disconnectCallback != null) {
                             disconnectCallback.deviceDisonnected();
                         }
+                        AppData.getInstance().setMessageText("Not connected");
                         return;
                     }
                 }
@@ -119,6 +120,7 @@ public class DeviceManager {
 //        Log.d(TAG, "Process packet");
         byte type = data.get(0);
         byte length = data.get(1);
+        connectionStatus = 1; // When packet received set the connection status back to 1
         switch ( type ) {
             case BTPacket.TYPE_CONNECTION_ACK:
 //                Log.d(TAG, "Connection still active");
@@ -185,7 +187,7 @@ public class DeviceManager {
                     float acc = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(accBytes));
                     float ele = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(eleBytes));
                     int microclimateInt = (int) microclimate;
-                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
+//                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
 
                     SensorReading dbReading = new SensorReading(0, new Date(time), reading, microclimateInt, lat, lon, ele, acc);
                     dbReading.save();

@@ -19,6 +19,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+
+import com.chaijiaxun.pm25tracker.utils.AppData;
+
+import org.w3c.dom.Text;
 
 
 public class MainActivity extends AppCompatActivity
@@ -28,8 +34,8 @@ public class MainActivity extends AppCompatActivity
     GPSTracker tracker;
     double lat, lon;
 
-    EditText sensorReading;
-    ListView readingList;
+    TextView messageText;
+    ProgressBar transferProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,14 +46,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        messageText = (TextView)findViewById(R.id.text_message);
+        transferProgress = (ProgressBar) findViewById(R.id.progress_transfer);
+        AppData.getInstance().setActivityBottombar(messageText, transferProgress);
+        AppData.getInstance().hideTransferProgress();
+
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -66,19 +69,10 @@ public class MainActivity extends AppCompatActivity
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_LOCATION);
         }
-//        tracker = new GPSTracker(this);
-//        if (!tracker.canGetLocation()) {
-//            tracker.showSettingsAlert();
-//        } else {
-//            lat = tracker.getLatitude();
-//            lon = tracker.getLongitude();
-//            Log.d("MainActivity", lat + " " + lon);
-//        }
+
 
         Fragment fragment = new HomeFragment();
         Bundle args = new Bundle();
-//                args.putInt(HomeFragment.ARG_PLANET_NUMBER, position);
-//                fragment.setArguments(args);
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
