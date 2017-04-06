@@ -244,7 +244,11 @@ public class DeviceManager {
     }
 
     public boolean hasLastDevice() {
-        return currentDevice != null;
+        return AppData.getInstance().getLastDeviceUUID() != null;
+    }
+
+    public void removeLastDevice() {
+        AppData.getInstance().setLastDeviceUUID(null);
     }
 
     public boolean isDeviceConnected() {
