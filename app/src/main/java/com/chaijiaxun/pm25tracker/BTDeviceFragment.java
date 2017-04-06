@@ -24,6 +24,7 @@ import com.chaijiaxun.pm25tracker.bluetooth.BTPacketCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothConnector;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothService;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+import com.chaijiaxun.pm25tracker.lists.BTItemAdapter;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.UIUtils;
 
@@ -138,23 +139,23 @@ public class BTDeviceFragment extends Fragment {
 
             Log.d(TAG, "Autoconnect to: " + autoConnectTo);
         }
-        if (pairedDevices.length > 0) {
-            // There are paired devices. Get the name and address of each paired device.
-            int index = 0;
-            for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
 
-                if ( autoConnectTo != null && autoConnectTo.equals(deviceHardwareAddress) ) {
-                    connectTo(device);
+        // Automatically connect to a device
+        if ( autoConnectTo != null ) {
+            if (pairedDevices.length > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                    String deviceHardwareAddress = device.getAddress(); // MAC address
+
+                    if (autoConnectTo.equals(deviceHardwareAddress)) {
+                        connectTo(device);
+                    }
                 }
-
-                pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
-                index++;
             }
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
+        BTItemAdapter adapter = new BTItemAdapter(pairedDevices);
+
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
         pairedListView.setAdapter(adapter);
         UIUtils.setListViewHeightBasedOnItems(pairedListView);
         pairedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
