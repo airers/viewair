@@ -4,9 +4,11 @@ import android.annotation.SuppressLint;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.util.StringBuilderPrinter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,10 +22,17 @@ import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
 import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+import com.chaijiaxun.pm25tracker.server.ServerDataManager;
+import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
+import com.jaredrummler.android.device.DeviceName;
+import com.loopj.android.http.AsyncHttpResponseHandler;
+
+import org.w3c.dom.Text;
 
 import java.text.DateFormat;
 import java.util.Date;
+
 
 
 /**

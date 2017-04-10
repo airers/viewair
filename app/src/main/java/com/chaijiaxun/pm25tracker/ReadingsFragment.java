@@ -123,7 +123,6 @@ public class ReadingsFragment extends Fragment{
         if ( list.size() > 0 ) {
             values = new String[list.size()];
             for ( int i = 0; i < list.size(); i++ ) {
-
                 values[i] = "Time: " + String.valueOf(outputFormat.format(list.get(i).getTime()));
                 values[i] += "\nReading: " + String.valueOf(list.get(i).getPollutantLevel());
                 values[i] += "\nmClimate: " + String.valueOf(list.get(i).getMicroclimate());
