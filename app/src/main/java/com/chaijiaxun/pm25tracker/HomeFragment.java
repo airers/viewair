@@ -33,6 +33,7 @@ import org.w3c.dom.Text;
 import java.text.DateFormat;
 import java.util.Date;
 
+import cz.msebera.android.httpclient.Header;
 
 
 /**
@@ -52,6 +53,10 @@ public class HomeFragment extends Fragment {
     TextView warningText;
     TextView deviceNameText;
     TextView phoneTimeText, deviceTimeText, syncTimeText, readingCountText;
+
+    Button sendReadingsButton;
+    TextView notSyncedTextView;
+    TextView deviceIDTextView;
 
     ImageView connectionStatusImage;
 
@@ -252,6 +257,69 @@ public class HomeFragment extends Fragment {
         };
 
         deviceInfoUpdateHandler.post(deviceInfoUpdateRunnable);
+
+
+        sendReadingsButton = (Button)v.findViewById(R.id.button_send_readings);
+        deviceIDTextView = (TextView)v.findViewById(R.id.text_device_id);
+        notSyncedTextView = (TextView)v.findViewById(R.id.text_not_synced_count);
+
+        ServerDataManager.getLatestTime(new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                // called when response HTTP status is "200 OK"
+                String sb = new String(responseBody);
+                notSyncedTextView.setText(sb);
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
+
+
+
+        DeviceName.with(getContext()).request(new DeviceName.Callback() {
+
+            @Override public void onFinished(DeviceName.DeviceInfo info, Exception error) {
+                String androidID = Settings.Secure.getString(getContext().getContentResolver(),
+                        Settings.Secure.ANDROID_ID);
+                String manufacturer = info.manufacturer;  // "Samsung"
+                String name = info.marketName;            // "Galaxy S7 Edge"
+                String model = info.model;                // "SAMSUNG-SM-G935A"
+                String codename = info.codename;          // "hero2lte"
+                String deviceName = info.getName();       // "Galaxy S7 Edge"
+                int androidSDKVersion = android.os.Build.VERSION.SDK_INT;
+                String androidVersionRelease = android.os.Build.VERSION.RELEASE;
+
+                StringBuilder deviceInfo = new StringBuilder();
+                deviceInfo.append("Android ID: ");
+                deviceInfo.append(androidID);
+                deviceInfo.append('\n');
+                deviceInfo.append("SDK: ");
+                deviceInfo.append(androidSDKVersion);
+                deviceInfo.append('\n');
+                deviceInfo.append("Release: ");
+                deviceInfo.append(androidVersionRelease);
+                deviceInfo.append('\n');
+                deviceInfo.append("Manufacturer: ");
+                deviceInfo.append(manufacturer);
+                deviceInfo.append('\n');
+                deviceInfo.append("Market Name: ");
+                deviceInfo.append(name);
+                deviceInfo.append('\n');
+                deviceInfo.append("Model Name: ");
+                deviceInfo.append(model);
+                deviceInfo.append('\n');
+                deviceInfo.append("Codename: ");
+                deviceInfo.append(codename);
+                deviceInfo.append('\n');
+                deviceInfo.append("Device Name: ");
+                deviceInfo.append(deviceName);
+                deviceIDTextView.setText(deviceInfo.toString());
+            }
+        });
+
 
         return v;
     }
