@@ -190,7 +190,7 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_bluetooth:
                 setTitle("Bluetooth Devices");
                 fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, BTDeviceFragment.newInstance())
+                        .replace(R.id.content_frame, BTDeviceFragment.newInstance(false))
                         .addToBackStack("Bluetooth")
                         .commit();
                 break;

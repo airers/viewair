@@ -24,6 +24,7 @@ import com.chaijiaxun.pm25tracker.bluetooth.BTPacketCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothConnector;
 import com.chaijiaxun.pm25tracker.bluetooth.BluetoothService;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+import com.chaijiaxun.pm25tracker.lists.BTItemAdapter;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.UIUtils;
 
@@ -33,6 +34,9 @@ public class BTDeviceFragment extends Fragment {
 
     private static final String TAG = "BTDeviceFragment";
 
+//    private static final String ARG_AUTOCONNECT = "autoconnect";
+
+
     // TODO: Move into some bluetooth manager
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothConnector mBluetoothConnector;
@@ -40,6 +44,8 @@ public class BTDeviceFragment extends Fragment {
     private Button scanButton;
     private BluetoothDevice [] pairedDevices = new BluetoothDevice[0];
     private String[] pairedStrings;
+
+    private boolean autoConnect;
 
     private boolean connecting = false;
 
@@ -50,9 +56,20 @@ public class BTDeviceFragment extends Fragment {
     public BTDeviceFragment() {
         mBluetoothAdapter = AppData.getInstance().getBluetoothAdapter();
     }
+    public BTDeviceFragment(boolean autoConnect) {
+        mBluetoothAdapter = AppData.getInstance().getBluetoothAdapter();
+        this.autoConnect = autoConnect;
+//        if (getArguments() != null) {
+//            autoConnect = getArguments().getBoolean(ARG_AUTOCONNECT);
+//        }
+    }
 
-    public static BTDeviceFragment newInstance() {
-        BTDeviceFragment fragment = new BTDeviceFragment();
+    public static BTDeviceFragment newInstance(boolean autoConnect) {
+        Log.d(TAG, "Creating fragment: " + autoConnect);
+        BTDeviceFragment fragment = new BTDeviceFragment(autoConnect);
+//        Bundle args = new Bundle();
+//        args.putBoolean(ARG_AUTOCONNECT, autoConnect);
+//        fragment.setArguments(args);
         return fragment;
     }
 
@@ -74,6 +91,7 @@ public class BTDeviceFragment extends Fragment {
             @Override
             public void deviceConnected(final BluetoothSocket s) {
                 DeviceManager.getInstance().setBluetoothService(s);
+                AppData.getInstance().setLastDeviceUUID(s.getRemoteDevice().getAddress());
                 connecting = false;
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -113,18 +131,31 @@ public class BTDeviceFragment extends Fragment {
         pairedDevices = mBluetoothAdapter.getBondedDevices().toArray(pairedDevices);
         pairedStrings = new String[pairedDevices.length];
         Log.d(TAG, "There are " + pairedDevices.length + " devices paired");
-        if (pairedDevices.length > 0) {
-            // There are paired devices. Get the name and address of each paired device.
-            int index = 0;
-            for (BluetoothDevice device : pairedDevices) {
-                String deviceName = device.getName();
-                String deviceHardwareAddress = device.getAddress(); // MAC address
-                pairedStrings[index] = deviceName + " - " + deviceHardwareAddress;
-                index++;
+
+        String autoConnectTo = null;
+        if ( autoConnect ) {
+            Log.d(TAG, "Autoconnect set");
+            autoConnectTo = AppData.getInstance().getLastDeviceUUID();
+
+            Log.d(TAG, "Autoconnect to: " + autoConnectTo);
+        }
+
+        // Automatically connect to a device
+        if ( autoConnectTo != null ) {
+            if (pairedDevices.length > 0) {
+                for (BluetoothDevice device : pairedDevices) {
+                    String deviceHardwareAddress = device.getAddress(); // MAC address
+
+                    if (autoConnectTo.equals(deviceHardwareAddress)) {
+                        connectTo(device);
+                    }
+                }
             }
         }
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
+        BTItemAdapter adapter = new BTItemAdapter(pairedDevices);
+
+//        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, android.R.id.text1, pairedStrings);
         pairedListView.setAdapter(adapter);
         UIUtils.setListViewHeightBasedOnItems(pairedListView);
         pairedListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
