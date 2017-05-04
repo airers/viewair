@@ -27,9 +27,13 @@ public class DeviceManager {
     private BTDisconnectCallback disconnectCallback;
     private BluetoothService bluetoothService;
     boolean receivedAck;
+
+    // 0 if there is nothing,
+    // 1 - 3 if it's connected.
+    // Each number represents one missed acknowledgement packet.
+    // Once it hits 4 it is assumed the device is lost.
     int connectionStatus = 0;
 
-    int pendingReadings = 0;
 
     final Handler handler = new Handler();
     Runnable aliveCheck;
@@ -75,6 +79,7 @@ public class DeviceManager {
                         if (disconnectCallback != null) {
                             disconnectCallback.deviceDisonnected();
                         }
+                        AppData.getInstance().setMessageText("Not connected");
                         return;
                     }
                 }
@@ -99,6 +104,7 @@ public class DeviceManager {
 //        Log.d(TAG, "Process packet");
         byte type = data.get(0);
         byte length = data.get(1);
+        connectionStatus = 1; // When packet received set the connection status back to 1
         switch ( type ) {
             case BTPacket.TYPE_CONNECTION_ACK:
 //                Log.d(TAG, "Connection still active");
@@ -123,7 +129,7 @@ public class DeviceManager {
 //                Log.d(TAG, "Size: " + data.size());
                 if ( data.size() > 4 ) {
                     byte [] countBytes = extract2Bytes(data, 2);
-                    pendingReadings = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
+                    int pendingReadings = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
                     Log.d(TAG, "Reading count received: " + pendingReadings);
 
                     AppData.getInstance().setPacketsLeft(pendingReadings);
@@ -165,7 +171,7 @@ public class DeviceManager {
                     float acc = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(accBytes));
                     float ele = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(eleBytes));
                     int microclimateInt = (int) microclimate;
-                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
+//                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
 
                     SensorReading dbReading = new SensorReading(0, new Date(time), reading, microclimateInt, lat, lon, ele, acc);
                     dbReading.save();
@@ -239,9 +245,5 @@ public class DeviceManager {
         byte mc = (byte)microclimate;
         byte [] bytes = {BTPacket.TYPE_SET_MICROCLIMATE, mc};
         this.bluetoothService.write(bytes);
-    }
-
-    public int getPendingReadings() {
-        return pendingReadings;
     }
 }
