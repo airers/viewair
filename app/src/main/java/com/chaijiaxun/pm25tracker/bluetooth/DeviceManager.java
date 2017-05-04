@@ -5,12 +5,16 @@ import android.bluetooth.BluetoothSocket;
 import android.os.Handler;
 import android.util.Log;
 
+import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
+import com.orm.query.Condition;
+import com.orm.query.Select;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Manages the device connection to the bluetooth device
@@ -22,14 +26,27 @@ public class DeviceManager {
     static public DeviceManager getInstance() {
         return singleton;
     }
-    private Device currentDevice;
+
     private BTPacketCallback packetCallback;
     private BTDisconnectCallback disconnectCallback;
-    private BluetoothService bluetoothService;
-    boolean receivedAck;
-    int connectionStatus = 0;
 
-    int pendingReadings = 0;
+    // DatabaseDevice variables
+    private DatabaseDevice currentDevice;
+    private BluetoothService bluetoothService;
+    private BluetoothDevice bluetoothDevice;
+
+    // Transient device properties
+    private int microclimate;
+    private Date deviceTime;
+
+    // 0 if there is nothing,
+    // 1 - 3 if it's connected.
+    // Each number represents one missed acknowledgement packet.
+    // Once it hits 4 it is assumed the device is lost.
+    int connectionStatus = 0;
+    private boolean receivedAck;
+
+    int pendingReadingCount = 0;
 
     final Handler handler = new Handler();
     Runnable aliveCheck;
@@ -75,6 +92,7 @@ public class DeviceManager {
                         if (disconnectCallback != null) {
                             disconnectCallback.deviceDisonnected();
                         }
+                        AppData.getInstance().setMessageText("Not connected");
                         return;
                     }
                 }
@@ -93,12 +111,16 @@ public class DeviceManager {
                 }
             }
         };
+
+        deviceTime = new Date();
+        deviceTime.setTime(0);
     }
 
     public void processPacket(ArrayList<Byte> data) {
 //        Log.d(TAG, "Process packet");
         byte type = data.get(0);
         byte length = data.get(1);
+        connectionStatus = 1; // When packet received set the connection status back to 1
         switch ( type ) {
             case BTPacket.TYPE_CONNECTION_ACK:
 //                Log.d(TAG, "Connection still active");
@@ -114,7 +136,7 @@ public class DeviceManager {
                             data.get(5)
                     };
                     long deviceTimestamp = ByteUtils.arduinoLongTSToAndroidLongTS(longData);
-                    currentDevice.setDeviceTime(deviceTimestamp);
+                    setDeviceTime(deviceTimestamp);
 //                    Log.d(TAG, "Timestamp " + deviceTimestamp);
                 }
                 break;
@@ -123,10 +145,10 @@ public class DeviceManager {
 //                Log.d(TAG, "Size: " + data.size());
                 if ( data.size() > 4 ) {
                     byte [] countBytes = extract2Bytes(data, 2);
-                    pendingReadings = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
-                    Log.d(TAG, "Reading count received: " + pendingReadings);
+                    pendingReadingCount = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
+                    Log.d(TAG, "Reading count received: " + pendingReadingCount);
 
-                    AppData.getInstance().setPacketsLeft(pendingReadings);
+                    AppData.getInstance().setPacketsLeft(pendingReadingCount);
 
                     byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(0);
 
@@ -165,7 +187,7 @@ public class DeviceManager {
                     float acc = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(accBytes));
                     float ele = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(eleBytes));
                     int microclimateInt = (int) microclimate;
-                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
+//                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
 
                     SensorReading dbReading = new SensorReading(0, new Date(time), reading, microclimateInt, lat, lon, ele, acc);
                     dbReading.save();
@@ -173,7 +195,7 @@ public class DeviceManager {
                 break;
             case BTPacket.TYPE_MICROCLIMATE_PACKET:
                 int microclimate = (int)data.get(2);
-                currentDevice.setMicroclimate(microclimate);
+                setMicroclimate(microclimate);
 
 
                 break;
@@ -193,26 +215,48 @@ public class DeviceManager {
         if ( bluetoothService != null ) {
             bluetoothService.destroy();
         }
+
+
+        bluetoothDevice = null;
         connectionStatus = 0;
         currentDevice = null;
     }
     public void setCurrentDevice(BluetoothDevice d) {
-        setCurrentDevice(new Device(d));
-    }
+        bluetoothDevice = d;
+        List<DatabaseDevice> devices = DatabaseDevice.getList();
 
-    public void setCurrentDevice(Device d) {
-        currentDevice = d;
+        currentDevice = null;
+        for ( DatabaseDevice device : devices ) {
+            Log.d(TAG, device.getName() + " " + device.getUuid());
+            if ( device.getName().equals(d.getName()) && device.getUuid().equals(d.getAddress()) ) {
+                currentDevice = device;
+                Log.d(TAG, "Device exists in database " + device.getId());
+                break;
+            }
+        }
+
+        if ( currentDevice == null ) {
+            DatabaseDevice dbDevice = new DatabaseDevice(d.getName(), d.getAddress());
+            currentDevice = dbDevice;
+            long id = dbDevice.save();
+            Log.d(TAG, "Creating a new device " + id);
+        }
     }
 
     public boolean hasLastDevice() {
-        return currentDevice != null;
+        return AppData.getInstance().getLastDeviceUUID() != null;
+    }
+
+    public void removeLastDevice() {
+        AppData.getInstance().setLastDeviceUUID(null);
     }
 
     public boolean isDeviceConnected() {
+        Log.d(TAG, "Device connected: " + (currentDevice != null) + " " + (bluetoothService != null));
         return currentDevice != null && bluetoothService != null;
     }
 
-    public Device getCurrentDevice() {
+    public DatabaseDevice getCurrentDevice() {
         return currentDevice;
     }
 
@@ -236,12 +280,30 @@ public class DeviceManager {
         if ( bluetoothService == null || currentDevice == null ) {
             return;
         }
+        this.microclimate = microclimate;
         byte mc = (byte)microclimate;
         byte [] bytes = {BTPacket.TYPE_SET_MICROCLIMATE, mc};
         this.bluetoothService.write(bytes);
     }
 
-    public int getPendingReadings() {
-        return pendingReadings;
+
+    public int getPendingReadingCount() {
+        return pendingReadingCount;
+    }
+
+    public int getMicroclimate() {
+        return microclimate;
+    }
+
+    public void setDeviceTime(long timestamp) {
+        deviceTime.setTime(timestamp);
+    }
+
+    public Date getDeviceTime() {
+        return deviceTime;
+    }
+
+    public void incrementSecond() {
+        deviceTime.setTime(deviceTime.getTime()+500);
     }
 }

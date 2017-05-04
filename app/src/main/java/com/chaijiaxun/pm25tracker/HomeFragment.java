@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +19,8 @@ import android.widget.Toast;
 
 import com.chaijiaxun.pm25tracker.bluetooth.BTDisconnectCallback;
 import com.chaijiaxun.pm25tracker.bluetooth.BTPacket;
-import com.chaijiaxun.pm25tracker.bluetooth.Device;
 import com.chaijiaxun.pm25tracker.bluetooth.DeviceManager;
+import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
 
 import java.text.DateFormat;
@@ -95,8 +96,6 @@ public class HomeFragment extends Fragment {
         syncTimeText = (TextView) v.findViewById(R.id.text_sync_time);
         readingCountText = (TextView) v.findViewById(R.id.text_reading_count);
 
-        syncTimeText.setText(DateFormat.getDateTimeInstance().format(new Date(1490830040000L)));
-
         setMicroclimateButton = (Button)v.findViewById(R.id.button_set_microclimate);
         syncTimeButton = (Button)v.findViewById(R.id.button_sync_time);
         syncDataButton = (Button)v.findViewById(R.id.button_get_readings);
@@ -106,7 +105,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.content_frame, BTDeviceFragment.newInstance())
+                        .replace(R.id.content_frame, BTDeviceFragment.newInstance(true))
                         .addToBackStack("Bluetooth")
                         .commit();
             }
@@ -165,16 +164,6 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(getContext(), "No device connected", Toast.LENGTH_SHORT).show();
                     return;
                 }
-//                byte [] bytes = new byte[6];
-//                bytes[0] = BTPacket.TYPE_GET_READINGS;
-//                bytes[1] = 4;
-//                byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(1490830040000L);
-//                bytes[2] = timeBytes[0];
-//                bytes[3] = timeBytes[1];
-//                bytes[4] = timeBytes[2];
-//                bytes[5] = timeBytes[3];
-//
-//                DeviceManager.getInstance().getBluetoothService().write(bytes);
 
                 byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(0);
                 byte [] bytes = new byte[8];
@@ -193,8 +182,22 @@ public class HomeFragment extends Fragment {
         unlinkButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DeviceManager.getInstance().unsetCurrentDevice();
-                refreshItems();
+                new AlertDialog.Builder(new ContextThemeWrapper(getActivity(), R.style.AlertDialogTheme))
+                        .setTitle("Remove Saved Device")
+                        .setMessage("This will remove the last connected device. You can connect to it again in the bluetooth menu.")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                DeviceManager.getInstance().removeLastDevice();
+                                refreshItems();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -221,14 +224,13 @@ public class HomeFragment extends Fragment {
                     byte [] timeBytes = ByteUtils.intToByteArray(timeInt);
 //                    Log.d(TAG, ByteUtils.byteArrayToString(timeBytes));
                     phoneTimeText.setText(DateFormat.getDateTimeInstance().format(currentTime));
-                    Device currentDevice = DeviceManager.getInstance().getCurrentDevice();
-                    currentDevice.incrementSecond();
-                    if ( currentDevice == null ) {
+                    DeviceManager.getInstance().incrementSecond();
+                    if ( !DeviceManager.getInstance().isDeviceConnected() ) {
                         deviceTimeText.setText("No device connected");
                         readingCountText.setText("No device connected");
                     } else {
-                        deviceTimeText.setText(DateFormat.getDateTimeInstance().format(currentDevice.getDeviceTime()));
-                        readingCountText.setText(""+DeviceManager.getInstance().getPendingReadings());
+                        deviceTimeText.setText(DateFormat.getDateTimeInstance().format(DeviceManager.getInstance().getDeviceTime()));
+                        readingCountText.setText(""+DeviceManager.getInstance().getPendingReadingCount());
                     }
                 }
                 catch (Exception e) {
@@ -257,13 +259,15 @@ public class HomeFragment extends Fragment {
      * Does the hide / show logic for the page
      */
     public void refreshItems() {
-        deviceNameLayout.setVisibility(View.INVISIBLE);
+        deviceNameLayout.setVisibility(View.GONE);
         warningLayout.setVisibility(View.INVISIBLE);
         connectButton.setVisibility(View.INVISIBLE);
         connectionStatusImage.setImageResource(R.drawable.connection_none);
 
         if ( DeviceManager.getInstance().hasLastDevice() ) {
             deviceNameLayout.setVisibility(View.VISIBLE);
+        }
+        if ( DeviceManager.getInstance().isDeviceConnected() ) {
             deviceNameText.setText(DeviceManager.getInstance().getCurrentDevice().getName());
             if ( DeviceManager.getInstance().isDeviceConnected() ) {
                 connectionStatusImage.setImageResource(R.drawable.connection_good);

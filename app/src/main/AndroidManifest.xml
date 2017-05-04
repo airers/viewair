@@ -12,16 +12,14 @@
         android:theme="@style/AppTheme"
         android:name="com.orm.SugarApp"
         >
-        <meta-data android:name="AA_DB_NAME" android:value="sensor_records" />
-        <meta-data android:name="AA_DB_VERSION" android:value="2" />
         <meta-data
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyDkRzwTszDaQE_BgNLcuUdQmv7cV76eF1A"/>
-        <meta-data android:name="DATABASE" android:value="viewair.db" />
-        <meta-data android:name="VERSION" android:value="2" />
+        <meta-data android:name="DATABASE" android:value="viewair.db1" />
+        <meta-data android:name="VERSION" android:value="1" />
         <meta-data android:name="QUERY_LOG" android:value="true" />
         <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.chaijiaxun.pm25tracker" />
 
