@@ -30,6 +30,9 @@ import com.google.maps.android.heatmaps.WeightedLatLng;
 
 import java.io.Console;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 /**
@@ -46,6 +49,9 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private Calendar selectedDate;
+    private SupportMapFragment mapFragment;
 
     TileOverlay mOverlay;
 
@@ -85,7 +91,7 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         FragmentManager fm = getChildFragmentManager();
-        SupportMapFragment mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
 
 
         if (mapFragment == null) {
@@ -105,12 +111,16 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         cv.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
+                selectedDate = new GregorianCalendar(year, month, dayOfMonth);
                 int d = dayOfMonth;
                 int m = month;
                 int y = year;
                 Log.d("Load Readings", String.valueOf(d));
                 Log.d("Load Readings", String.valueOf(m));
-                //curDate = String.valueOf(d);
+                updateMap();
+                //FragmentManager fm = getChildFragmentManager();
+                //mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
+                mapFragment.getMapAsync(MapHistoryFragment.this);
             }
         });
         return v;
@@ -118,39 +128,50 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-
+        Log.d("ASDASDASD", Calendar.YEAR + " " + Calendar.MONTH + " " + Calendar.DAY_OF_MONTH);
         LatLng singapore = new LatLng(1.354977, 103.806936);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,10));
 
-        List<SensorReading> readingsList = SensorReading.listAll(SensorReading.class);
+        //List<SensorReading> readingsList = SensorReading.listAll(SensorReading.class);
+        long sDate;
+        if(selectedDate == null){
+            selectedDate = Calendar.getInstance();
+             sDate = new GregorianCalendar(selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).getTime().getTime();
+        }
+        else sDate = selectedDate.getTime().getTime();
+
+        List<SensorReading> readingsList = SensorReading.findWithQuery(SensorReading.class, "Select * from SENSOR_READING where time > " + sDate + " AND time < " + (sDate + 86400000));
+        //if (readingsList.size() < 1)
         ArrayList<WeightedLatLng> list = new ArrayList<WeightedLatLng>();
         if ( readingsList.size() > 0 ) {
             for (int i = 0; i < readingsList.size(); i++) {
+                //Date startDate = new Date(y, m, d);
+                //long readingDate = readingsList.get(i).getTime();
                 list.add(new WeightedLatLng(new LatLng(readingsList.get(i).getLocationLat(),
-                        readingsList.get(i).getLocationLon()),readingsList.get(i).getPollutantLevel()/5));
+                        readingsList.get(i).getLocationLon()), readingsList.get(i).getPollutantLevel() / 5));
             }
+
+            int[] colors = {
+                    Color.rgb(102, 225, 0), // green
+                    Color.rgb(255, 0, 0)    // red
+            };
+
+            float[] startPoints = {
+                    0.2f, 1f
+            };
+
+            Gradient gradient = new Gradient(colors, startPoints);
+            HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
+                    .weightedData(list)
+                    .gradient(gradient)
+                    .radius(30)
+                    .opacity(0.8)
+                    .build();
+            // Add a tile overlay to the map, using the heat map tile provider.
+            mOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
         }
-        int[] colors = {
-                Color.rgb(102, 225, 0), // green
-                Color.rgb(255, 0, 0)    // red
-        };
-
-        float[] startPoints = {
-                0.2f, 1f
-        };
-
-        Gradient gradient = new Gradient(colors, startPoints);
-        HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
-                .weightedData(list)
-                .gradient(gradient)
-                .radius(30)
-                .opacity(0.8)
-                .build();
-        // Add a tile overlay to the map, using the heat map tile provider.
-        mOverlay = googleMap.addTileOverlay(new TileOverlayOptions().tileProvider(mProvider));
     }
     private void updateMap(){
-        mOverlay.remove();
-
+        if(mOverlay != null) mOverlay.remove();
     }
 }
