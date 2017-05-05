@@ -48,23 +48,8 @@ public class ReadingsFragment extends Fragment{
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        View view = inflater.inflate(R.layout.content_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_readings, container, false);
 
-        final Button saveButton = (Button) view.findViewById(R.id.button_save);
-
-        final Button locateButton = (Button) view.findViewById(R.id.button_locate);
-        locateButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                clickLocation();
-            }
-        });
-
-        final Button dbSeedButton = (Button) view.findViewById(R.id.button_db_seed);
-        dbSeedButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                clickDbSeed();
-            }
-        });
 
         Spinner spinner = (Spinner) view.findViewById(R.id.spinner_reading_filter);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
@@ -78,10 +63,13 @@ public class ReadingsFragment extends Fragment{
             public void onItemSelected(AdapterView<?> parent, View view,
                                        int pos, long id) {
                 String selected = (String) parent.getItemAtPosition(pos);
+                Log.d("Load Readings", selected );
                 switch (selected){
-                    case "Indoors": loadReadings();
+                    case "Indoors": loadReadings(0);
                         break;
-                    case "Outdoors": loadReadings();
+                    case "Outdoors": loadReadings(1);
+                        break;
+                    case "All": loadReadings(-1);
                         break;
                 }
                 Log.d("OnDateChangeListener", (String) parent.getItemAtPosition(pos));
@@ -103,19 +91,35 @@ public class ReadingsFragment extends Fragment{
 
     }
 
-    public void clickLocation() {
-        SensorReading.deleteAll(SensorReading.class);
-        loadReadings();
-    }
-
-    public void clickDbSeed() {
-        DatabaseSeed dbSeed = new DatabaseSeed();
-        dbSeed.seed(10);
-        loadReadings();
-    }
-
     public void loadReadings() {
         ArrayList<SensorReading> list =(ArrayList) SensorReading.getList();
+        String[] values;
+        String outputPattern = "dd/MMM h:mm a";
+        SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
+        Log.d("Load Readings", list.size() + " ");
+        if ( list.size() > 0 ) {
+            values = new String[list.size()];
+            for ( int i = 0; i < list.size(); i++ ) {
+
+                values[i] = "Time: " + String.valueOf(outputFormat.format(list.get(i).getTime()));
+                values[i] += "\nReading: " + String.valueOf(list.get(i).getPollutantLevel());
+                values[i] += "\nmClimate: " + String.valueOf(list.get(i).getMicroclimate());
+            }
+        } else {
+            values = new String[] { "Nothing in database" };
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+
+        readingList.setAdapter(adapter);
+
+    }
+    public void loadReadings(int selected) {
+        ArrayList<SensorReading> list;
+        if (selected == 0) list = (ArrayList) SensorReading.find(SensorReading.class, "microclimate = 0");
+        else if (selected == 1)  list = (ArrayList) SensorReading.find(SensorReading.class, "microclimate = 1");
+        else list =(ArrayList) SensorReading.getList();
         String[] values;
         String outputPattern = "dd/MMM h:mm a";
         SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
