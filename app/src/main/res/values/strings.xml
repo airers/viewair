@@ -17,6 +17,7 @@
     <string name="action_settings">Settings</string>
 
     <string-array name="microclimate_array">
+        <item>All</item>
         <item>Indoors</item>
         <item>Outdoors</item>
         <!--<item>Kitchen</item>
