@@ -41,7 +41,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_dev"
-            android:icon="@drawable/ic_menu_settings"
-            android:title="@string/nav_settings" />
+            android:icon="@drawable/ic_warning"
+            android:title="@string/nav_developer" />
     </group>
 </menu>

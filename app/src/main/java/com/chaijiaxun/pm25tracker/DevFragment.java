@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 
+import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.DatabaseSeed;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 
@@ -27,6 +28,7 @@ public class DevFragment extends Fragment {
 
     EditText sensorReading;
     ListView readingList;
+    ListView devicesList;
     double lat, lon;
 
     public DevFragment() {
@@ -103,7 +105,9 @@ public class DevFragment extends Fragment {
 
         sensorReading = (EditText) view.findViewById(R.id.sensor_reading);
         readingList = (ListView) view.findViewById(R.id.readings_view);
+        devicesList = (ListView) view.findViewById(R.id.devices_view);
         loadReadings();
+        loadDevices();
 
         return view;
 
@@ -111,12 +115,17 @@ public class DevFragment extends Fragment {
 
     public void clickLocation() {
         SensorReading.deleteAll(SensorReading.class);
+        DatabaseDevice.deleteAll(DatabaseDevice.class);
         loadReadings();
+        loadDevices();
     }
 
     public void clickDbSeed() {
         DatabaseSeed.seed(10);
+        DatabaseDevice databaseDevice = new DatabaseDevice("Device Name", "123");
+        databaseDevice.save();
         loadReadings();
+        loadDevices();
     }
 
     public void saveReading() {
@@ -160,6 +169,25 @@ public class DevFragment extends Fragment {
                 android.R.layout.simple_list_item_1, android.R.id.text1, values);
 
         readingList.setAdapter(adapter);
+
+    }
+    public void loadDevices() {
+        ArrayList<DatabaseDevice> list = (ArrayList)DatabaseDevice.getList();
+        String[] values;
+        Log.d("Load Readings", list.size() + " ");
+        if ( list.size() > 0 ) {
+            values = new String[list.size()];
+            for ( int i = 0; i < list.size(); i++ ) {
+                values[i] = "UUID: " + String.valueOf(list.get(i).getUuid());
+                values[i] += "\nName: " + String.valueOf(list.get(i).getName());
+            }
+        } else {
+            values = new String[] { "Nothing in database" };
+        }
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(),
+                android.R.layout.simple_list_item_1, android.R.id.text1, values);
+
+        devicesList.setAdapter(adapter);
 
     }
 }
