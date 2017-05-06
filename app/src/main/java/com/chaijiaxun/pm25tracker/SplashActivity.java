@@ -19,18 +19,40 @@ public class SplashActivity extends AppCompatActivity {
 
         AppData.getInstance().init(getApplicationContext());
 
+        if ( !AppData.getInstance().acceptedEULA() ) {
+            new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogTheme))
+                    .setTitle("End User Licence Agreement")
+                    .setMessage(getString(R.string.eula))
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            AppData.getInstance().acceptEULA();
+                            bluetoothCheck();
+                        }
+                    })
+                    .show();
+        } else {
+            bluetoothCheck();
+        }
+
+    }
+
+    protected void bluetoothCheck() {
         if ( !AppData.getInstance().getBluetoothAdapter().isEnabled() ) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         } else {
             proceed();
         }
-
-        Intent intent = new Intent(this, MainActivity.class);
-        startActivity(intent);
-        finish();
     }
 
+    /**
+     * Used for the return value of the system dialogue to enable bluetooth.
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

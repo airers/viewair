@@ -15,6 +15,7 @@ import android.content.SharedPreferences;
 public class AppData {
     public static final String PREFS_NAME = "ViewairPrefs";
     public static final String LAST_DEVICE = "LastDevice";
+    public static final String EULA_ACCEPTED = "EULAAccepted";
 
     private BluetoothAdapter bluetoothAdapter;
     private int packetsLeft;
@@ -34,6 +35,19 @@ public class AppData {
     }
 
     private Context appContext;
+
+    public boolean acceptedEULA() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        return settings.getBoolean(EULA_ACCEPTED, false);
+    }
+    public void acceptEULA() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(EULA_ACCEPTED, true);
+
+        // Commit the edits!
+        editor.apply();
+    }
 
     public String getLastDeviceUUID() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
