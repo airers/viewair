@@ -35,17 +35,17 @@ public class ExampleInstrumentedTest {
         assertEquals("com.chaijiaxun.pm25tracker", appContext.getPackageName());
     }
 
-    @Rule
-    public ActivityTestRule<MainActivity> rule  = new  ActivityTestRule<>(MainActivity.class);
-
-    @Test
-    public void ensureTextViewIsPresent() throws Exception {
-        AppData.getInstance().init(InstrumentationRegistry.getTargetContext());
-        
-        MainActivity activity = rule.getActivity();
-        View messageText = activity.findViewById(R.id.text_message);
-        assertThat(messageText, notNullValue());
-        assertThat(messageText, instanceOf(TextView.class));
-
-    }
+//    @Rule
+//    public ActivityTestRule<MainActivity> rule  = new  ActivityTestRule<>(MainActivity.class);
+//
+//    @Test
+//    public void ensureTextViewIsPresent() throws Exception {
+//        AppData.getInstance().init(InstrumentationRegistry.getTargetContext());
+//
+//        MainActivity activity = rule.getActivity();
+//        View messageText = activity.findViewById(R.id.text_message);
+//        assertThat(messageText, notNullValue());
+//        assertThat(messageText, instanceOf(TextView.class));
+//
+//    }
 }
