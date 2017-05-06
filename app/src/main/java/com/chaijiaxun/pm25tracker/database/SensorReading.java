@@ -1,6 +1,5 @@
 package com.chaijiaxun.pm25tracker.database;
 
-import com.activeandroid.query.Select;
 import com.orm.SugarRecord;
 
 import java.util.Date;
