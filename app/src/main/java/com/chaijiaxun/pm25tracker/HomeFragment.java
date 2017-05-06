@@ -277,7 +277,6 @@ public class HomeFragment extends Fragment {
 
 
         DeviceName.with(getContext()).request(new DeviceName.Callback() {
-
             @Override public void onFinished(DeviceName.DeviceInfo info, Exception error) {
                 String androidID = Settings.Secure.getString(getContext().getContentResolver(),
                         Settings.Secure.ANDROID_ID);

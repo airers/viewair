@@ -12,7 +12,7 @@ import java.util.List;
 public class DatabaseDevice extends SugarRecord {
     private String name; // The name of the bluetooth device
     private String uuid; // The UUID of the bluetooth device
-    private String serverId; // The ID assigned by the server
+    private String serverId; // The UUID assigned by the server
 
     public DatabaseDevice(){
 
@@ -36,11 +36,9 @@ public class DatabaseDevice extends SugarRecord {
         return serverId;
     }
 
-    public String setServerID() {
-        String serverID = "1";
+    public void setServerID(String serverID) {
         this.serverId = serverID;
         this.save();
-        return serverID;
     }
 
     public static List<DatabaseDevice> getList() {
