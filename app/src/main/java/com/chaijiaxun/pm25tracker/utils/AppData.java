@@ -63,6 +63,7 @@ public class AppData {
     }
     public void init(Context appContext) {
         this.appContext = appContext;
+        initSettings();
     }
 
     public Context getApplicationContext() {
@@ -116,6 +117,29 @@ public class AppData {
 
     public void hideTransferProgress() {
         transferProgress.setVisibility(View.GONE);
+    }
+
+    private void initSettings() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        if ( !settings.contains(SettingType.AUTOCONNECT.toString()) ) {
+            saveSetting(SettingType.AUTOCONNECT, true);
+            saveSetting(SettingType.AUTOCONNECT_DEVICE, true);
+            saveSetting(SettingType.AUTOSYNC, true);
+            saveSetting(SettingType.STATUSBAR, true);
+            saveSetting(SettingType.CLOUD, true);
+        }
+
+    }
+    public boolean getSetting(SettingType type) {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        return settings.getBoolean(type.toString(), false);
+    }
+    public void saveSetting(SettingType type, boolean state) {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putBoolean(type.toString(), state);
+        // Commit the edits!
+        editor.apply();
     }
 
 // Should store database stuff
