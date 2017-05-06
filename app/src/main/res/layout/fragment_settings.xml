@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    tools:context="com.chaijiaxun.pm25tracker.HomeFragment"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        style="@style/AppTheme.SettingItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/AppTheme.TextSubheader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sync data"
+                />
+            <android.support.v7.widget.SwitchCompat
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <TextView
+            style="@style/AppTheme.TextDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Share your data with our servers to allow for a better experience."
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        style="@style/AppTheme.SettingItem"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                style="@style/AppTheme.TextSubheader"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sync data"
+                />
+            <android.support.v7.widget.SwitchCompat
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <TextView
+            style="@style/AppTheme.TextDescription"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Share your data with our servers to allow for a better experience."
+            />
+    </LinearLayout>
+</LinearLayout>
+

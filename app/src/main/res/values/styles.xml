@@ -23,7 +23,7 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="AppTheme.TexSubheader">
+    <style name="AppTheme.TextSubheader">
         <item name="android:textColor">@color/colorPrimaryText</item>
         <item name="android:textSize">14sp</item>
         <item name="android:paddingBottom">8dp</item>
@@ -34,6 +34,18 @@
         <item name="android:textAllCaps">true</item>
     </style>
 
+    <style name="AppTheme.SettingItem">
+        <item name="android:textSize">14sp</item>
+        <item name="android:paddingBottom">8dp</item>
+        <item name="android:paddingLeft">10dp</item>
+        <item name="android:paddingRight">10dp</item>
+        <item name="android:paddingTop">8dp</item>
+    </style>
+
+    <style name="AppTheme.TextDescription">
+        <item name="android:textColor">@color/colorSecondaryText</item>
+        <item name="android:textSize">12sp</item>
+    </style>
 
     <style name="SplashTheme" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowBackground">@drawable/background_splash</item>
