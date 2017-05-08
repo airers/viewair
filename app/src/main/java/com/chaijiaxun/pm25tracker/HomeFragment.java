@@ -26,7 +26,6 @@ import java.text.DateFormat;
 import java.util.Date;
 
 
-
 /**
  * A fragment subclass that shows the home screen
  * Use the {@link HomeFragment#newInstance} factory method to
@@ -34,7 +33,6 @@ import java.util.Date;
  */
 public class HomeFragment extends Fragment {
     private static final String TAG = "APPHomeFragment";
-
 
     Button connectButton;
     Button setMicroclimateButton, syncTimeButton, syncDataButton;

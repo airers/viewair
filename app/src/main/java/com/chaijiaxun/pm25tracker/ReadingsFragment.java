@@ -23,7 +23,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 
-public class ReadingsFragment extends Fragment{
+public class ReadingsFragment extends Fragment {
     EditText sensorReading;
     ListView readingList;
     double lat, lon;
