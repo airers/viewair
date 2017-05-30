@@ -46,8 +46,6 @@ public class DeviceManager {
     int connectionStatus = 0;
     private boolean receivedAck;
 
-    int pendingReadingCount = 0;
-
     final Handler handler = new Handler();
     Runnable aliveCheck;
 
@@ -141,11 +139,12 @@ public class DeviceManager {
                 }
                 break;
             case BTPacket.TYPE_READING_COUNT:
+                receivedAck = true;
 //                Log.d(TAG, ByteUtils.byteArrayToString(data));
 //                Log.d(TAG, "Size: " + data.size());
                 if ( data.size() > 4 ) {
                     byte [] countBytes = extract2Bytes(data, 2);
-                    pendingReadingCount = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
+                    int pendingReadingCount = ByteUtils.arduinoUint16ToAndroidInt(countBytes);
                     Log.d(TAG, "Reading count received: " + pendingReadingCount);
 
                     AppData.getInstance().setPacketsLeft(pendingReadingCount);
@@ -167,6 +166,7 @@ public class DeviceManager {
                 }
                 break;
             case BTPacket.TYPE_READING_PACKET:
+                receivedAck = true;
                 AppData.getInstance().decrementPacketsLeft();
                 Log.d(TAG, "Packets left: " + AppData.getInstance().getPacketsLeft());
                 Log.d(TAG, ByteUtils.byteArrayToString(data));
@@ -284,11 +284,6 @@ public class DeviceManager {
         byte mc = (byte)microclimate;
         byte [] bytes = {BTPacket.TYPE_SET_MICROCLIMATE, mc};
         this.bluetoothService.write(bytes);
-    }
-
-
-    public int getPendingReadingCount() {
-        return pendingReadingCount;
     }
 
     public int getMicroclimate() {
