@@ -1,5 +1,6 @@
 package com.chaijiaxun.pm25tracker;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -12,9 +13,13 @@ import android.widget.Spinner;
 import com.chaijiaxun.pm25tracker.lists.StatsItem;
 import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,15 +70,28 @@ public class StatsFragment extends Fragment {
         BarData bardata = new BarData(dataSet);
         statsChart.setData(bardata);
         statsChart.invalidate(); // refresh
+        statsChart.setScaleYEnabled(false);
+        XAxis xAxis = statsChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setTextSize(10f);
+        xAxis.setDrawAxisLine(true);
+        xAxis.setDrawGridLines(false);
+        xAxis.setGranularity(1f);
+        xAxis.setValueFormatter(new MyXAxisValueFormatter());
+
+        YAxis yAxisLeft = statsChart.getAxisLeft();
+
+        YAxis yAxisRight = statsChart.getAxisRight();
+        yAxisRight.setEnabled(false);
 
         ArrayList<StatsItem> statsItems = new ArrayList<>();
-        statsItems.add(new StatsItem("5pm", 12, 14, 15));
-        statsItems.add(new StatsItem("6pm", 12, 14, 15));
-        statsItems.add(new StatsItem("7pm", 12, 14, 15));
-        statsItems.add(new StatsItem("8pm", 12, 14, 15));
-        statsItems.add(new StatsItem("9pm", 12, 14, 15));
-        statsItems.add(new StatsItem("10pm", 12, 14, 15));
-        statsItems.add(new StatsItem("11pm", 12, 14, 15));
+        statsItems.add(new StatsItem("17:00 - 18:00", 12, 14, 15));
+        statsItems.add(new StatsItem("18:00 - 19:00", 12, 14, 15));
+        statsItems.add(new StatsItem("19:00 - 20:00", 12, 14, 15));
+        statsItems.add(new StatsItem("20:00 - 21:00", 12, 14, 15));
+        statsItems.add(new StatsItem("21:00 - 22:00", 12, 14, 15));
+        statsItems.add(new StatsItem("22:00 - 23:00", 12, 14, 15));
+        statsItems.add(new StatsItem("23:00 - 00:00", 12, 14, 15));
 
         statsItemAdapter = new StatsItemAdapter(statsItems);
 
@@ -81,5 +99,16 @@ public class StatsFragment extends Fragment {
 
 
         return fragmentView;
+    }
+
+    public class MyXAxisValueFormatter implements IAxisValueFormatter {
+
+        public MyXAxisValueFormatter() {
+        }
+
+        @Override
+        public String getFormattedValue(float value, AxisBase axis) {
+            return String.format("%02d", (int)value) + ":00";
+        }
     }
 }

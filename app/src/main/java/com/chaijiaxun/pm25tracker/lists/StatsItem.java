@@ -9,6 +9,9 @@ public class StatsItem {
     private float min;
     private float max;
     private float avg;
+    private float airGood;
+    private float airMed;
+    private float airBad;
 
     StatsItem() {
         time = "00:00";
