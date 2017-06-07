@@ -252,7 +252,7 @@ public class DeviceManager {
     }
 
     public boolean isDeviceConnected() {
-        Log.d(TAG, "Device connected: " + (currentDevice != null) + " " + (bluetoothService != null));
+//        Log.d(TAG, "Device connected: " + (currentDevice != null) + " " + (bluetoothService != null));
         return currentDevice != null && bluetoothService != null;
     }
 
