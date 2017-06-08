@@ -20,6 +20,7 @@ import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -58,14 +59,24 @@ public class StatsFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         datepickerSpinner.setAdapter(adapter);
 
-        List<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(1, 2));
-        entries.add(new BarEntry(2, 3));
-        entries.add(new BarEntry(3, 4));
-        entries.add(new BarEntry(4, 5));
-        entries.add(new BarEntry(5, 4));
+        int[] colors = new int[3];
+        colors[0] = ColorTemplate.MATERIAL_COLORS[0];
+        colors[1] = ColorTemplate.MATERIAL_COLORS[1];
+        colors[2] = ColorTemplate.MATERIAL_COLORS[2];
 
-        BarDataSet dataSet = new BarDataSet(entries, "Hour"); // add entries to dataset
+        List<BarEntry> entries = new ArrayList<>();
+        entries.add(new BarEntry(1, new float[]{2, 1, 3}));
+        entries.add(new BarEntry(2, new float[]{2, 4, 2}));
+        entries.add(new BarEntry(3, new float[]{4, 1, 4}));
+        entries.add(new BarEntry(4, new float[]{2, 5, 2}));
+        entries.add(new BarEntry(5, new float[]{2, 1, 4}));
+        entries.add(new BarEntry(7, new float[]{3, 2, 4}));
+        entries.add(new BarEntry(8, new float[]{1, 4, 4}));
+        entries.add(new BarEntry(10, new float[]{5, 2, 1}));
+
+        BarDataSet dataSet = new BarDataSet(entries, "Air quality"); // add entries to dataset
+        dataSet.setColors(colors);
+        dataSet.setStackLabels(new String[]{"Good", "Warning", "Bad"});
 
         BarData bardata = new BarData(dataSet);
         statsChart.setData(bardata);

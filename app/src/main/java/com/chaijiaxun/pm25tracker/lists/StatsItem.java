@@ -9,9 +9,9 @@ public class StatsItem {
     private float min;
     private float max;
     private float avg;
-    private float airGood;
-    private float airMed;
-    private float airBad;
+    private float airGood = 4;
+    private float airMed = 3;
+    private float airBad = 1;
 
     StatsItem() {
         time = "00:00";
@@ -25,6 +25,12 @@ public class StatsItem {
         this.min = min;
         this.max = max;
         this.avg = avg;
+    }
+
+    public void setAirQuality(float bad, float med, float good) {
+        airBad = bad;
+        airGood = good;
+        airMed = med;
     }
 
     public String getTime() {
@@ -57,5 +63,17 @@ public class StatsItem {
 
     public void setAvg(float avg) {
         this.avg = avg;
+    }
+
+    public float getAirGood() {
+        return airGood;
+    }
+
+    public float getAirMed() {
+        return airMed;
+    }
+
+    public float getAirBad() {
+        return airBad;
     }
 }
