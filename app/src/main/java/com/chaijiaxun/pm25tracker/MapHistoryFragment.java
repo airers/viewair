@@ -27,7 +27,9 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.io.Console;
 import java.util.ArrayList;
@@ -109,6 +111,14 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_map_history, container, false);
         MaterialCalendarView cv = (MaterialCalendarView) v.findViewById(R.id.calendarView);
+        cv.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                selectedDate = new GregorianCalendar(date.getYear(), date.getMonth(), date.getDay());
+                updateMap();
+                mapFragment.getMapAsync(MapHistoryFragment.this);
+            }
+        });
         /*cv.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
             @Override
             public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
