@@ -15,6 +15,7 @@ import android.view.ViewGroup;
 import android.widget.CalendarView;
 
 import com.chaijiaxun.pm25tracker.database.SensorReading;
+import com.chaijiaxun.pm25tracker.materialcalendar.EventDecorator;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -28,14 +29,18 @@ import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
 import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
 
 import java.io.Console;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -110,7 +115,16 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_map_history, container, false);
+
+        long sDate = new GregorianCalendar(selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).getTime().getTime();
+        List<SensorReading> readingsList = SensorReading.findWithQuery(SensorReading.class, "Select COUNT(*) FROM SENSOR_READING where time > " + sDate + " AND time < " + (sDate + 86400000));
+
         MaterialCalendarView cv = (MaterialCalendarView) v.findViewById(R.id.calendarView);
+        HashSet<CalendarDay> cdh = new HashSet<>();
+        cdh.add(CalendarDay.today());
+        EventDecorator ed = new EventDecorator(0x222222FF, cdh);
+        cv.addDecorator(ed);
+
         cv.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
             public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
@@ -161,16 +175,13 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                 list.add(new WeightedLatLng(new LatLng(readingsList.get(i).getLocationLat(),
                         readingsList.get(i).getLocationLon()), readingsList.get(i).getPollutantLevel() / 5));
             }
-
             int[] colors = {
                     Color.rgb(102, 225, 0), // green
                     Color.rgb(255, 0, 0)    // red
             };
-
             float[] startPoints = {
                     0.2f, 1f
             };
-
             Gradient gradient = new Gradient(colors, startPoints);
             HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
                     .weightedData(list)
