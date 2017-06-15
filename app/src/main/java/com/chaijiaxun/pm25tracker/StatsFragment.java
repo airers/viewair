@@ -3,12 +3,15 @@ package com.chaijiaxun.pm25tracker;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.TextViewCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import com.chaijiaxun.pm25tracker.lists.StatsItem;
 import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
@@ -23,6 +26,7 @@ import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class StatsFragment extends Fragment {
@@ -37,6 +41,10 @@ public class StatsFragment extends Fragment {
     Spinner datepickerSpinner;
     BarChart statsChart;
     ListView statsListView;
+
+    Button prevButton, nextButton;
+    Date selectedDate;
+    TextView dateText;
 
     public StatsItemAdapter statsItemAdapter;
 
@@ -54,6 +62,25 @@ public class StatsFragment extends Fragment {
         statsChart = (BarChart)fragmentView.findViewById(R.id.chart_history);
         statsListView = (ListView)fragmentView.findViewById(R.id.listview_stats);
         datepickerSpinner = (Spinner)fragmentView.findViewById(R.id.spinner_day);
+        prevButton = (Button)fragmentView.findViewById(R.id.button_prev);
+        nextButton = (Button)fragmentView.findViewById(R.id.button_next);
+        dateText = (TextView)fragmentView.findViewById(R.id.text_date);
+        selectedDate = new Date();
+
+        View.OnClickListener dateChange = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int negativeMultiplier = 1;
+                if ( v == prevButton ) {
+                    negativeMultiplier = -1;
+                }
+                long oneDay = 60*60*24*1000;
+                selectedDate.setTime(selectedDate.getTime() + (oneDay * negativeMultiplier));
+            }
+        };
+
+        prevButton.setOnClickListener(dateChange);
+        nextButton.setOnClickListener(dateChange);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.microclimate_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
