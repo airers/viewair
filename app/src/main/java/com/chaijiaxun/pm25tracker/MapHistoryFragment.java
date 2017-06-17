@@ -33,8 +33,11 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
 import java.io.Console;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -116,14 +119,19 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_map_history, container, false);
 
-        long sDate = new GregorianCalendar(selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).getTime().getTime();
-        List<SensorReading> readingsList = SensorReading.findWithQuery(SensorReading.class, "Select COUNT(*) FROM SENSOR_READING where time > " + sDate + " AND time < " + (sDate + 86400000));
 
         MaterialCalendarView cv = (MaterialCalendarView) v.findViewById(R.id.calendarView);
+        ArrayList<Integer> datesWithStuff = new ArrayList<>();
         HashSet<CalendarDay> cdh = new HashSet<>();
-        cdh.add(CalendarDay.today());
-        EventDecorator ed = new EventDecorator(0x222222FF, cdh);
-        cv.addDecorator(ed);
+
+        cv.setOnMonthChangedListener(new OnMonthChangedListener() {
+            @Override
+            public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+                showDateDots(widget, date);
+            }
+        });
+        CalendarDay today = new CalendarDay();
+        showDateDots(cv, today.today());
 
         cv.setOnDateChangedListener(new OnDateSelectedListener() {
             @Override
@@ -149,6 +157,35 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
             }
         });*/
         return v;
+    }
+
+    public void showDateDots(MaterialCalendarView widget, CalendarDay date){
+        int selectedMonth = date.getMonth();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        HashSet<CalendarDay> selectedMonthDisplay = new HashSet<>();
+        Date start = new Date();
+        Date end = new Date();
+        try {
+            selectedMonth += 1;
+            start = sdf.parse("1/" + selectedMonth +"/" + date.getYear());
+            end = sdf.parse("1/" + (selectedMonth + 1) +"/" + date.getYear());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if(start != null && end != null) {
+            for (long currDate = start.getTime(); currDate < end.getTime(); currDate += 86400000) {
+                Log.d("Dates", String.valueOf(new Date(currDate)));
+                int countDate = (int) SensorReading.count(SensorReading.class, "time > " + currDate + " AND time <" + (currDate + 86400000), null);
+                if (countDate > 0) {
+                    Calendar saveDate = new GregorianCalendar();
+                    saveDate.setTimeInMillis(currDate);
+                    selectedMonthDisplay.add(new CalendarDay(saveDate.get(Calendar.YEAR), saveDate.get(Calendar.MONTH), saveDate.get(Calendar.DATE)));
+                }
+            }
+            EventDecorator ed = new EventDecorator(0xFF555555, selectedMonthDisplay);
+            widget.removeDecorators();
+            widget.addDecorator(ed);
+        }
     }
 
     @Override
