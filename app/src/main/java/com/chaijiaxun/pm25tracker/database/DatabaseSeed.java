@@ -17,6 +17,9 @@ public class DatabaseSeed {
         for(int i = 0; i < num; i++){
             date = Calendar.getInstance();
             date = new GregorianCalendar(2017, date.get(Calendar.MONTH), rand.nextInt(30)+1);
+            date.set(Calendar.HOUR_OF_DAY, rand.nextInt(24));
+            date.set(Calendar.MINUTE, rand.nextInt(60));
+            date.set(Calendar.SECOND, rand.nextInt(60));
             long t= date.getTimeInMillis();
             int pollutantRandom = rand.nextInt(5) + 1;
             int microclimateRandom = rand.nextInt(2) + 0;
