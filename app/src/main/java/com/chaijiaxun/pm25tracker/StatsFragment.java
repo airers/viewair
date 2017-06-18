@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.TextViewCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,8 +26,11 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 public class StatsFragment extends Fragment {
@@ -43,11 +47,50 @@ public class StatsFragment extends Fragment {
     ListView statsListView;
 
     Button prevButton, nextButton;
-    Date selectedDate;
+    Calendar selectedDate;
     TextView dateText;
 
     public StatsItemAdapter statsItemAdapter;
 
+    private String dayString() {
+        Calendar today = new GregorianCalendar();
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        today.set(Calendar.HOUR, 0);
+        today.set(Calendar.MINUTE, 0);
+        long timeDiff = selectedDate.getTimeInMillis() - today.getTimeInMillis();
+        timeDiff /= 60*60*24*1000;
+        if ( timeDiff == 0 ) {
+            return getString(R.string.date_today);
+        } else if ( timeDiff == -1 ) {
+            return getString(R.string.date_yesterday);
+        } else if ( timeDiff < 0 && timeDiff >= -6 ) {
+            switch (selectedDate.get(Calendar.DAY_OF_WEEK)) {
+                case Calendar.MONDAY:
+                    return getString(R.string.date_monday);
+                case Calendar.TUESDAY:
+                    return getString(R.string.date_tuesday);
+                case Calendar.WEDNESDAY:
+                    return getString(R.string.date_wednesday);
+                case Calendar.THURSDAY:
+                    return getString(R.string.date_wednesday);
+                case Calendar.FRIDAY:
+                    return getString(R.string.date_wednesday);
+                case Calendar.SATURDAY:
+                    return getString(R.string.date_wednesday);
+                case Calendar.SUNDAY:
+                    return getString(R.string.date_wednesday);
+            }
+        }
+        SimpleDateFormat format;
+        if ( selectedDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) ) {
+            format = new SimpleDateFormat("dd MMM");
+        } else {
+            format = new SimpleDateFormat("dd MMM yyyy");
+        }
+        return format.format(selectedDate.getTime());
+
+    };
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,17 +108,22 @@ public class StatsFragment extends Fragment {
         prevButton = (Button)fragmentView.findViewById(R.id.button_prev);
         nextButton = (Button)fragmentView.findViewById(R.id.button_next);
         dateText = (TextView)fragmentView.findViewById(R.id.text_date);
-        selectedDate = new Date();
+        selectedDate = new GregorianCalendar();
+        selectedDate.set(Calendar.SECOND, 0);
+        selectedDate.set(Calendar.MILLISECOND, 0);
+        selectedDate.set(Calendar.HOUR, 0);
+        selectedDate.set(Calendar.MINUTE, 0);
+
 
         View.OnClickListener dateChange = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int negativeMultiplier = 1;
+                int direction = 1;
                 if ( v == prevButton ) {
-                    negativeMultiplier = -1;
+                    direction = -1;
                 }
-                long oneDay = 60*60*24*1000;
-                selectedDate.setTime(selectedDate.getTime() + (oneDay * negativeMultiplier));
+                selectedDate.add(Calendar.DAY_OF_MONTH, direction);
+                dateText.setText(dayString());
             }
         };
 
