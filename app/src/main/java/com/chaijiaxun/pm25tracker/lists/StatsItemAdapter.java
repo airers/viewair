@@ -12,6 +12,7 @@ import android.widget.TextView;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.R;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -21,6 +22,8 @@ import java.util.ArrayList;
 public class StatsItemAdapter extends BaseAdapter {
     private ArrayList<StatsItem> data;
     private LayoutInflater inflator = null;
+
+    private static DecimalFormat df2 = new DecimalFormat(".##");
 
     public static class StatsView {
         public TextView time;
@@ -80,9 +83,9 @@ public class StatsItemAdapter extends BaseAdapter {
             StatsItem statsItem = data.get(position);
 
             if ( holder != null ) {
-                holder.min.setText(String.valueOf(statsItem.getMin()));
-                holder.avg.setText(String.valueOf(statsItem.getAvg()));
-                holder.max.setText(String.valueOf(statsItem.getMax()));
+                holder.min.setText(df2.format(statsItem.getMin()));
+                holder.avg.setText(df2.format(statsItem.getAvg()));
+                holder.max.setText(df2.format(statsItem.getMax()));
                 holder.time.setText(statsItem.getTime());
 
                 LinearLayout.LayoutParams lp;

@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.CalendarView;
 
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.utils.AppData;
+import com.chaijiaxun.pm25tracker.utils.DataUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -132,16 +134,12 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         LatLng singapore = new LatLng(1.354977, 103.806936);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,10));
 
-        //List<SensorReading> readingsList = SensorReading.listAll(SensorReading.class);
-        long sDate;
-        if(selectedDate == null){
-            selectedDate = Calendar.getInstance();
-             sDate = new GregorianCalendar(selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).getTime().getTime();
+        if ( selectedDate == null ) {
+            selectedDate = DataUtils.getStartOfToday();
         }
-        else sDate = selectedDate.getTime().getTime();
 
-        List<SensorReading> readingsList = SensorReading.findWithQuery(SensorReading.class, "Select * from SENSOR_READING where time > " + sDate + " AND time < " + (sDate + 86400000));
-        //if (readingsList.size() < 1)
+        List<SensorReading> readingsList = DataUtils.getDayReadings(selectedDate);
+
         ArrayList<WeightedLatLng> list = new ArrayList<WeightedLatLng>();
         if ( readingsList.size() > 0 ) {
             for (int i = 0; i < readingsList.size(); i++) {

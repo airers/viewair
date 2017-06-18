@@ -27,7 +27,7 @@ public class StatsItem {
         this.avg = avg;
     }
 
-    public void setAirQuality(float bad, float med, float good) {
+    public void setAirQuality(float good, float med, float bad) {
         airBad = bad;
         airGood = good;
         airMed = med;

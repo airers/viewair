@@ -14,8 +14,10 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.lists.StatsItem;
 import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
+import com.chaijiaxun.pm25tracker.utils.DataUtils;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
@@ -29,7 +31,6 @@ import com.github.mikephil.charting.utils.ColorTemplate;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -53,11 +54,7 @@ public class StatsFragment extends Fragment {
     public StatsItemAdapter statsItemAdapter;
 
     private String dayString() {
-        Calendar today = new GregorianCalendar();
-        today.set(Calendar.SECOND, 0);
-        today.set(Calendar.MILLISECOND, 0);
-        today.set(Calendar.HOUR, 0);
-        today.set(Calendar.MINUTE, 0);
+        Calendar today = DataUtils.getStartOfToday();
         long timeDiff = selectedDate.getTimeInMillis() - today.getTimeInMillis();
         timeDiff /= 60*60*24*1000;
         if ( timeDiff == 0 ) {
@@ -124,6 +121,7 @@ public class StatsFragment extends Fragment {
                 }
                 selectedDate.add(Calendar.DAY_OF_MONTH, direction);
                 dateText.setText(dayString());
+                updatePage();
             }
         };
 
@@ -134,28 +132,6 @@ public class StatsFragment extends Fragment {
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         datepickerSpinner.setAdapter(adapter);
 
-        int[] colors = new int[3];
-        colors[0] = ColorTemplate.MATERIAL_COLORS[0];
-        colors[1] = ColorTemplate.MATERIAL_COLORS[1];
-        colors[2] = ColorTemplate.MATERIAL_COLORS[2];
-
-        List<BarEntry> entries = new ArrayList<>();
-        entries.add(new BarEntry(1, new float[]{2, 1, 3}));
-        entries.add(new BarEntry(2, new float[]{2, 4, 2}));
-        entries.add(new BarEntry(3, new float[]{4, 1, 4}));
-        entries.add(new BarEntry(4, new float[]{2, 5, 2}));
-        entries.add(new BarEntry(5, new float[]{2, 1, 4}));
-        entries.add(new BarEntry(7, new float[]{3, 2, 4}));
-        entries.add(new BarEntry(8, new float[]{1, 4, 4}));
-        entries.add(new BarEntry(10, new float[]{5, 2, 1}));
-
-        BarDataSet dataSet = new BarDataSet(entries, "Air quality"); // add entries to dataset
-        dataSet.setColors(colors);
-        dataSet.setStackLabels(new String[]{"Good", "Warning", "Bad"});
-
-        BarData bardata = new BarData(dataSet);
-        statsChart.setData(bardata);
-        statsChart.invalidate(); // refresh
         statsChart.setScaleYEnabled(false);
         XAxis xAxis = statsChart.getXAxis();
         xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
@@ -166,30 +142,74 @@ public class StatsFragment extends Fragment {
         xAxis.setValueFormatter(new MyXAxisValueFormatter());
 
         YAxis yAxisLeft = statsChart.getAxisLeft();
-
         YAxis yAxisRight = statsChart.getAxisRight();
         yAxisRight.setEnabled(false);
-
-        ArrayList<StatsItem> statsItems = new ArrayList<>();
-        statsItems.add(new StatsItem("17:00 - 18:00", 12, 14, 15));
-        statsItems.add(new StatsItem("18:00 - 19:00", 12, 14, 15));
-        statsItems.add(new StatsItem("19:00 - 20:00", 12, 14, 15));
-        statsItems.add(new StatsItem("20:00 - 21:00", 12, 14, 15));
-        statsItems.add(new StatsItem("21:00 - 22:00", 12, 14, 15));
-        statsItems.add(new StatsItem("22:00 - 23:00", 12, 14, 15));
-        statsItems.add(new StatsItem("23:00 - 00:00", 12, 14, 15));
-
-        statsItemAdapter = new StatsItemAdapter(statsItems);
-
-        statsListView.setAdapter(statsItemAdapter);
-
+        updatePage();
 
         return fragmentView;
     }
 
-    public class MyXAxisValueFormatter implements IAxisValueFormatter {
+    /**
+     * Updates the page based on the selectedDate
+     */
+    private void updatePage() {
+        List<BarEntry> entries = new ArrayList<>();
+        ArrayList<StatsItem> statsItems = new ArrayList<>();
 
-        public MyXAxisValueFormatter() {
+        for (int i = 0; i < 24; i++ ) {
+            List<SensorReading> readingList = DataUtils.getHourReadings(selectedDate, i);
+            if ( readingList.size() == 0 ) {
+                continue;
+            }
+            int low = 0;
+            int med = 0;
+            int high = 0;
+            double total = 0;
+            double min = Double.MAX_VALUE;
+            double max = Double.MIN_VALUE;
+            for ( SensorReading reading : readingList ) {
+                double level = reading.getPollutantLevel();
+                max = Math.max(max, level);
+                min = Math.min(min, level);
+                total += level;
+                if ( level < 2 ) {
+                    low++;
+                } else if ( level < 4 ) {
+                    med++;
+                } else {
+                    high++;
+                }
+            }
+            double average = total / readingList.size();
+
+            entries.add(new BarEntry(i, new float[]{low,med,high}));
+            String time = String.format("%02d", i) + ":00 - " + String.format("%02d", i+1) + ":00";
+            StatsItem statsItem = new StatsItem(time, (float)min, (float)max, (float)average);
+            statsItem.setAirQuality(low,med,high);
+            statsItems.add(statsItem);
+        }
+
+        int[] colors = new int[3];
+        colors[0] = ColorTemplate.MATERIAL_COLORS[0];
+        colors[1] = ColorTemplate.MATERIAL_COLORS[1];
+        colors[2] = ColorTemplate.MATERIAL_COLORS[2];
+
+        BarDataSet dataSet = new BarDataSet(entries, "Air quality"); // add entries to dataset
+        dataSet.setColors(colors);
+        dataSet.setStackLabels(new String[]{"Good", "Warning", "Bad"});
+
+        BarData bardata = new BarData(dataSet);
+        statsChart.setData(bardata);
+        statsChart.invalidate(); // refresh
+
+        statsItemAdapter = new StatsItemAdapter(statsItems);
+        statsListView.setAdapter(statsItemAdapter);
+        statsListView.invalidate();
+    }
+
+    private class MyXAxisValueFormatter implements IAxisValueFormatter {
+
+        MyXAxisValueFormatter() {
         }
 
         @Override
