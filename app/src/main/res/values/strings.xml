@@ -20,10 +20,6 @@
         <item>All</item>
         <item>Indoors</item>
         <item>Outdoors</item>
-        <!--<item>Kitchen</item>
-        <item>Temple</item>
-        <item>Industrial Area</item>
-        <item>Roads</item>-->
     </string-array>
 
     <string name="filter_button">Filter</string>
@@ -37,11 +33,15 @@
     <string name="date_thursday">Thursday</string>
     <string name="date_friday">Friday</string>
 
+    <string name="date_saturday">Saturday</string>
+    <string name="date_sunday">Sunday</string>
+
     <string name="stats_label_min">min</string>
     <string name="stats_label_max">max</string>
     <string name="stats_label_avg">average</string>
     <string name="placeholder_microclimate">indoors</string>
     <string name="placeholder_time">00:00</string>
+    <string name="placeholder_number">123</string>
 
     <string name="no_data">No data</string>
     <string name="eula">
@@ -55,4 +55,7 @@
         Blah Blah Blah Blah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah BlahBlah Blah Blah
 
     </string>
+
+    <string name="showing">Showing</string>
+    <string name="of">of</string>
 </resources>

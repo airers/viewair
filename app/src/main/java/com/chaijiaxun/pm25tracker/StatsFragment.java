@@ -1,10 +1,7 @@
 package com.chaijiaxun.pm25tracker;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.TextViewCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +15,7 @@ import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.lists.StatsItem;
 import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
 import com.chaijiaxun.pm25tracker.utils.DataUtils;
+import com.chaijiaxun.pm25tracker.utils.UIUtils;
 import com.github.mikephil.charting.charts.BarChart;
 import com.github.mikephil.charting.components.AxisBase;
 import com.github.mikephil.charting.components.XAxis;
@@ -28,7 +26,6 @@ import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -53,41 +50,7 @@ public class StatsFragment extends Fragment {
 
     public StatsItemAdapter statsItemAdapter;
 
-    private String dayString() {
-        Calendar today = DataUtils.getStartOfToday();
-        long timeDiff = selectedDate.getTimeInMillis() - today.getTimeInMillis();
-        timeDiff /= 60*60*24*1000;
-        if ( timeDiff == 0 ) {
-            return getString(R.string.date_today);
-        } else if ( timeDiff == -1 ) {
-            return getString(R.string.date_yesterday);
-        } else if ( timeDiff < 0 && timeDiff >= -6 ) {
-            switch (selectedDate.get(Calendar.DAY_OF_WEEK)) {
-                case Calendar.MONDAY:
-                    return getString(R.string.date_monday);
-                case Calendar.TUESDAY:
-                    return getString(R.string.date_tuesday);
-                case Calendar.WEDNESDAY:
-                    return getString(R.string.date_wednesday);
-                case Calendar.THURSDAY:
-                    return getString(R.string.date_wednesday);
-                case Calendar.FRIDAY:
-                    return getString(R.string.date_wednesday);
-                case Calendar.SATURDAY:
-                    return getString(R.string.date_wednesday);
-                case Calendar.SUNDAY:
-                    return getString(R.string.date_wednesday);
-            }
-        }
-        SimpleDateFormat format;
-        if ( selectedDate.get(Calendar.YEAR) == today.get(Calendar.YEAR) ) {
-            format = new SimpleDateFormat("dd MMM");
-        } else {
-            format = new SimpleDateFormat("dd MMM yyyy");
-        }
-        return format.format(selectedDate.getTime());
 
-    };
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -120,7 +83,7 @@ public class StatsFragment extends Fragment {
                     direction = -1;
                 }
                 selectedDate.add(Calendar.DAY_OF_MONTH, direction);
-                dateText.setText(dayString());
+                dateText.setText(UIUtils.dayString(selectedDate));
                 updatePage();
             }
         };
@@ -156,7 +119,7 @@ public class StatsFragment extends Fragment {
         List<BarEntry> entries = new ArrayList<>();
         ArrayList<StatsItem> statsItems = new ArrayList<>();
 
-        for (int i = 0; i < 24; i++ ) {
+        for (int i = 0; i < 24; i++ ) { // For each hour in the day
             List<SensorReading> readingList = DataUtils.getHourReadings(selectedDate, i);
             if ( readingList.size() == 0 ) {
                 continue;
