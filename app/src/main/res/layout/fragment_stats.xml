@@ -3,6 +3,31 @@
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/button_prev"
+            style="@style/AppTheme.DateArrows"
+            android:text="@string/date_prev" />
+
+        <TextView
+            android:id="@+id/text_date"
+            style="@style/AppTheme.TextSubheader"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/date_today"
+            android:gravity="center_vertical"
+            android:textAlignment="center" />
+
+        <Button
+            android:id="@+id/button_next"
+            style="@style/AppTheme.DateArrows"
+            android:text="@string/date_next" />
+    </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -11,8 +36,10 @@
             android:id="@+id/spinner_day"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentTop="true"
-            android:layout_alignParentLeft="true"/>
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"/>
         <Button
             style="@style/Widget.AppCompat.Button.Borderless.Colored"
             android:layout_width="wrap_content"

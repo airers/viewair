@@ -5,11 +5,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.R;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 /**
@@ -20,11 +23,16 @@ public class StatsItemAdapter extends BaseAdapter {
     private ArrayList<StatsItem> data;
     private LayoutInflater inflator = null;
 
+    private static DecimalFormat df2 = new DecimalFormat(".##");
+
     public static class StatsView {
         public TextView time;
         public TextView min;
         public TextView max;
         public TextView avg;
+        public LinearLayout bad;
+        public LinearLayout med;
+        public LinearLayout good;
     }
 
 
@@ -63,6 +71,9 @@ public class StatsItemAdapter extends BaseAdapter {
                 holder.min = (TextView)rowView.findViewById(R.id.text_min);
                 holder.max = (TextView)rowView.findViewById(R.id.text_max);
                 holder.avg = (TextView)rowView.findViewById(R.id.text_avg);
+                holder.bad = (LinearLayout)rowView.findViewById(R.id.bar_bad);
+                holder.med = (LinearLayout)rowView.findViewById(R.id.bar_med);
+                holder.good = (LinearLayout)rowView.findViewById(R.id.bar_good);
 
                 rowView.setTag( holder );
             } else {
@@ -72,12 +83,21 @@ public class StatsItemAdapter extends BaseAdapter {
             StatsItem statsItem = data.get(position);
 
             if ( holder != null ) {
-                holder.min.setText(String.valueOf(statsItem.getMin()));
-                holder.avg.setText(String.valueOf(statsItem.getAvg()));
-                holder.max.setText(String.valueOf(statsItem.getMax()));
+                holder.min.setText(df2.format(statsItem.getMin()));
+                holder.avg.setText(df2.format(statsItem.getAvg()));
+                holder.max.setText(df2.format(statsItem.getMax()));
                 holder.time.setText(statsItem.getTime());
-            }
 
+                LinearLayout.LayoutParams lp;
+                lp = (LinearLayout.LayoutParams)holder.good.getLayoutParams();
+                lp.weight = statsItem.getAirGood();
+
+                lp = (LinearLayout.LayoutParams)holder.med.getLayoutParams();
+                lp.weight = statsItem.getAirMed();
+
+                lp = (LinearLayout.LayoutParams)holder.bad.getLayoutParams();
+                lp.weight = statsItem.getAirBad();
+            }
 
         } else {
             rowView = inflator.inflate(R.layout.listitem_empty, null);
