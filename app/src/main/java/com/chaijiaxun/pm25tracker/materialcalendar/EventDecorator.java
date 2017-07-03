@@ -10,6 +10,7 @@ import java.util.HashSet;
 
 /**
  * Created by Shalom Quek on 11/6/2017.
+ * Logic that decides how to decorate the calender events.
  */
 
 public class EventDecorator implements DayViewDecorator {

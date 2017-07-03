@@ -141,21 +141,6 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                 mapFragment.getMapAsync(MapHistoryFragment.this);
             }
         });
-        /*cv.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
-            @Override
-            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                selectedDate = new GregorianCalendar(year, month, dayOfMonth);
-                int d = dayOfMonth;
-                int m = month;
-                int y = year;
-                Log.d("Load Readings", String.valueOf(d));
-                Log.d("Load Readings", String.valueOf(m));
-                updateMap();
-                //FragmentManager fm = getChildFragmentManager();
-                //mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
-                mapFragment.getMapAsync(MapHistoryFragment.this);
-            }
-        });*/
         return v;
     }
 
