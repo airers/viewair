@@ -2,6 +2,7 @@ package com.chaijiaxun.pm25tracker;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.chaijiaxun.pm25tracker.calendar.CalendarDialog;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.lists.StatsItem;
 import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
@@ -95,6 +97,7 @@ public class StatsFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.d("Calendar Picker", "date pressed");
+                showCalendarDialog();
             }
         });
 
@@ -118,7 +121,11 @@ public class StatsFragment extends Fragment {
 
         return fragmentView;
     }
-
+    private void showCalendarDialog(){
+        FragmentManager fm = getChildFragmentManager();
+        CalendarDialog calendarDialog = new CalendarDialog();
+        calendarDialog.show(fm, "fragment_calendar");
+    }
     /**
      * Updates the page based on the selectedDate
      */
