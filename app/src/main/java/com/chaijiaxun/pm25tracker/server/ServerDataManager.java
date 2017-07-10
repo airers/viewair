@@ -10,7 +10,7 @@ import cz.msebera.android.httpclient.Header;
  */
 public class ServerDataManager {
 
-    private static final String BASE_URL = "http://aircyclopedia.justyeo.com/api/v1/";
+    private static final String BASE_URL = "http://128.199.69.0/api/v1/";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 

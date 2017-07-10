@@ -64,6 +64,10 @@ public class SensorReading extends SugarRecord {
         return locationAccuracy;
     }
 
+    public long getLocalDeviceID() {
+        return localDeviceID;
+    }
+
     public static List<SensorReading> getList() {
         return SensorReading.listAll(SensorReading.class);
     }

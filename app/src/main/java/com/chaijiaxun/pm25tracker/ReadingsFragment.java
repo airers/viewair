@@ -29,9 +29,7 @@ import java.util.List;
 import java.util.Random;
 
 public class ReadingsFragment extends Fragment {
-    EditText sensorReading;
     ListView readingList;
-    double lat, lon;
 
     Button prevButton, nextButton;
     Calendar selectedDate;
@@ -126,7 +124,6 @@ public class ReadingsFragment extends Fragment {
 
         });
 
-        sensorReading = (EditText) view.findViewById(R.id.sensor_reading);
         readingList = (ListView) view.findViewById(R.id.readings_view);
         updatePage();
 
