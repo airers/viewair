@@ -1,20 +1,1 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.chaijiaxun.pm25tracker.HomeFragment"
-    android:orientation="vertical"
-    >
-    <Spinner
-        android:id="@+id/microclimate"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"/>
-    <ListView
-        android:id="@+id/readings_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
-</LinearLayout>
+<?xml version="1.0" encoding="utf-8"?><LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"    xmlns:tools="http://schemas.android.com/tools"    android:layout_width="match_parent"    android:layout_height="match_parent"    tools:context="com.chaijiaxun.pm25tracker.HomeFragment"    android:orientation="vertical" >    <LinearLayout        android:layout_width="match_parent"        android:layout_height="wrap_content">        <Button            android:id="@+id/button_prev"            style="@style/AppTheme.DateArrows"            android:text="@string/date_prev" />        <TextView            android:id="@+id/text_date"            style="@style/AppTheme.TextSubheader"            android:layout_width="0dp"            android:layout_height="wrap_content"            android:layout_weight="1"            android:text="@string/date_today"            android:gravity="center_vertical"            android:textAlignment="center" />        <Button            android:id="@+id/button_next"            style="@style/AppTheme.DateArrows"            android:text="@string/date_next" />    </LinearLayout>    <Spinner        android:id="@+id/spinner_microclimate"        android:layout_width="match_parent"        android:layout_height="wrap_content"        android:layout_marginTop="10dp"        android:layout_marginBottom="10dp"/>    <LinearLayout        android:layout_width="match_parent"        android:layout_height="wrap_content"        android:paddingLeft="@dimen/activity_horizontal_margin"        android:paddingRight="@dimen/activity_horizontal_margin"        android:paddingTop="@dimen/list_item_padding"        android:paddingBottom="@dimen/list_item_padding"        android:orientation="horizontal">        <TextView            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:paddingRight="5dp"            android:text="@string/showing"/>        <TextView            android:id="@+id/text_filteredNumber"            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:textStyle="bold"            android:text="@string/placeholder_number"/>        <TextView            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:paddingEnd="5dp"            android:paddingStart="5dp"            android:text="@string/of"/>        <TextView            android:id="@+id/text_totalNumber"            android:layout_width="wrap_content"            android:layout_height="wrap_content"            android:textStyle="bold"            android:text="@string/placeholder_number"/>    </LinearLayout>    <ListView        android:id="@+id/readings_view"        android:layout_width="match_parent"        android:layout_height="match_parent" /></LinearLayout>

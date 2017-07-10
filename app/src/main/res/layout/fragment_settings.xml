@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/activity_horizontal_margin"
+    tools:context="com.chaijiaxun.pm25tracker.HomeFragment"
+    android:orientation="vertical" >
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                style="@style/AppTheme.SettingItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/AppTheme.TextSubheader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Autoconnect"
+                        />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/switch_setting_autoconnect"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <TextView
+                    style="@style/AppTheme.TextDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Automatically attempt to connect when the app is opened"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.SettingItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/AppTheme.TextSubheader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Autoconnect to last device"
+                        />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/switch_setting_autoconnect_device"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <TextView
+                    style="@style/AppTheme.TextDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Automatically attempt to connect to the last connected device."
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.SettingItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/AppTheme.TextSubheader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Automatic sync"
+                        />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/switch_setting_auto_sync"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <TextView
+                    style="@style/AppTheme.TextDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Automatically pull data from the device when it is connected."
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.SettingItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/AppTheme.TextSubheader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Status bar"
+                        />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/switch_setting_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <TextView
+                    style="@style/AppTheme.TextDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Show the status bar at the bottom of every screen throughout the app."
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.SettingItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        style="@style/AppTheme.TextSubheader"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Sync data with cloud"
+                        />
+                    <android.support.v7.widget.SwitchCompat
+                        android:id="@+id/switch_setting_cloud"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <TextView
+                    style="@style/AppTheme.TextDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Store your data on the cloud so you can restore the data is it's lost.."
+                    />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="right">
+        <Button
+            android:id="@+id/button_cancel"
+            style="@style/Widget.AppCompat.Button.Borderless"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"/>
+        <Button
+            android:id="@+id/button_save"
+            style="@style/Widget.AppCompat.Button.Borderless.Colored"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"/>
+    </LinearLayout>
+</LinearLayout>
+

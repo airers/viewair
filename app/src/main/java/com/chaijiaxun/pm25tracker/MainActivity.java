@@ -185,7 +185,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_settings:
                 setTitle("Settings");
-
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, SettingsFragment.newInstance())
+                        .addToBackStack("Settings")
+                        .commit();
                 break;
             case R.id.nav_bluetooth:
                 setTitle("Bluetooth Devices");
@@ -196,7 +199,10 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_help:
                 setTitle("Help and Feedback");
-
+                fragmentManager.beginTransaction()
+                        .replace(R.id.content_frame, HelpFragment.newInstance())
+                        .addToBackStack("Help")
+                        .commit();
                 break;
 
             case R.id.nav_dev:

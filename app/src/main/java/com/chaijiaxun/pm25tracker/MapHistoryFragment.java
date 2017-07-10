@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +16,9 @@ import android.view.ViewGroup;
 import android.widget.CalendarView;
 
 import com.chaijiaxun.pm25tracker.database.SensorReading;
+import com.chaijiaxun.pm25tracker.materialcalendar.EventDecorator;
 import com.chaijiaxun.pm25tracker.utils.AppData;
+import com.chaijiaxun.pm25tracker.utils.DataUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -27,12 +30,22 @@ import com.google.android.gms.maps.model.TileOverlayOptions;
 import com.google.maps.android.heatmaps.Gradient;
 import com.google.maps.android.heatmaps.HeatmapTileProvider;
 import com.google.maps.android.heatmaps.WeightedLatLng;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+import com.prolificinteractive.materialcalendarview.DayViewDecorator;
+import com.prolificinteractive.materialcalendarview.DayViewFacade;
+import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
+import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
+import com.prolificinteractive.materialcalendarview.OnMonthChangedListener;
 
 import java.io.Console;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -107,23 +120,59 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_map_history, container, false);
-        CalendarView cv = (CalendarView) v.findViewById(R.id.calendarView);
-        cv.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
+
+
+        MaterialCalendarView cv = (MaterialCalendarView) v.findViewById(R.id.calendarView);
+        ArrayList<Integer> datesWithStuff = new ArrayList<>();
+        HashSet<CalendarDay> cdh = new HashSet<>();
+
+        cv.setOnMonthChangedListener(new OnMonthChangedListener() {
             @Override
-            public void onSelectedDayChange(CalendarView view, int year, int month, int dayOfMonth) {
-                selectedDate = new GregorianCalendar(year, month, dayOfMonth);
-                int d = dayOfMonth;
-                int m = month;
-                int y = year;
-                Log.d("Load Readings", String.valueOf(d));
-                Log.d("Load Readings", String.valueOf(m));
+            public void onMonthChanged(MaterialCalendarView widget, CalendarDay date) {
+                showDateDots(widget, date);
+            }
+        });
+        CalendarDay today = new CalendarDay();
+        showDateDots(cv, today.today());
+
+        cv.setOnDateChangedListener(new OnDateSelectedListener() {
+            @Override
+            public void onDateSelected(@NonNull MaterialCalendarView widget, @NonNull CalendarDay date, boolean selected) {
+                selectedDate = new GregorianCalendar(date.getYear(), date.getMonth(), date.getDay());
                 updateMap();
-                //FragmentManager fm = getChildFragmentManager();
-                //mapFragment = (SupportMapFragment) fm.findFragmentById(R.id.map);
                 mapFragment.getMapAsync(MapHistoryFragment.this);
             }
         });
         return v;
+    }
+
+    public void showDateDots(MaterialCalendarView widget, CalendarDay date){
+        int selectedMonth = date.getMonth();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        HashSet<CalendarDay> selectedMonthDisplay = new HashSet<>();
+        Date start = new Date();
+        Date end = new Date();
+        try {
+            selectedMonth += 1;
+            start = sdf.parse("1/" + selectedMonth +"/" + date.getYear());
+            end = sdf.parse("1/" + (selectedMonth + 1) +"/" + date.getYear());
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if(start != null && end != null) {
+            for (long currDate = start.getTime(); currDate < end.getTime(); currDate += 86400000) {
+                Log.d("Dates", String.valueOf(new Date(currDate)));
+                int countDate = (int) SensorReading.count(SensorReading.class, "time > " + currDate + " AND time <" + (currDate + 86400000), null);
+                if (countDate > 0) {
+                    Calendar saveDate = new GregorianCalendar();
+                    saveDate.setTimeInMillis(currDate);
+                    selectedMonthDisplay.add(new CalendarDay(saveDate.get(Calendar.YEAR), saveDate.get(Calendar.MONTH), saveDate.get(Calendar.DATE)));
+                }
+            }
+            EventDecorator ed = new EventDecorator(0xFF555555, selectedMonthDisplay);
+            widget.removeDecorators();
+            widget.addDecorator(ed);
+        }
     }
 
     @Override
@@ -132,16 +181,12 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
         LatLng singapore = new LatLng(1.354977, 103.806936);
         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(singapore,10));
 
-        //List<SensorReading> readingsList = SensorReading.listAll(SensorReading.class);
-        long sDate;
-        if(selectedDate == null){
-            selectedDate = Calendar.getInstance();
-             sDate = new GregorianCalendar(selectedDate.get(Calendar.YEAR), selectedDate.get(Calendar.MONTH), selectedDate.get(Calendar.DAY_OF_MONTH)).getTime().getTime();
+        if ( selectedDate == null ) {
+            selectedDate = DataUtils.getStartOfToday();
         }
-        else sDate = selectedDate.getTime().getTime();
 
-        List<SensorReading> readingsList = SensorReading.findWithQuery(SensorReading.class, "Select * from SENSOR_READING where time > " + sDate + " AND time < " + (sDate + 86400000));
-        //if (readingsList.size() < 1)
+        List<SensorReading> readingsList = DataUtils.getDayReadings(selectedDate);
+
         ArrayList<WeightedLatLng> list = new ArrayList<WeightedLatLng>();
         if ( readingsList.size() > 0 ) {
             for (int i = 0; i < readingsList.size(); i++) {
@@ -150,16 +195,13 @@ public class MapHistoryFragment extends Fragment implements OnMapReadyCallback {
                 list.add(new WeightedLatLng(new LatLng(readingsList.get(i).getLocationLat(),
                         readingsList.get(i).getLocationLon()), readingsList.get(i).getPollutantLevel() / 5));
             }
-
             int[] colors = {
                     Color.rgb(102, 225, 0), // green
                     Color.rgb(255, 0, 0)    // red
             };
-
             float[] startPoints = {
                     0.2f, 1f
             };
-
             Gradient gradient = new Gradient(colors, startPoints);
             HeatmapTileProvider mProvider = new HeatmapTileProvider.Builder()
                     .weightedData(list)
