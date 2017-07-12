@@ -13,7 +13,6 @@ public class SensorReading extends SugarRecord {
     private float locationLon;
     private float locationElevation;
     private float locationAccuracy;
-
     private long localDeviceID;
 
 
@@ -21,8 +20,8 @@ public class SensorReading extends SugarRecord {
 
     }
 
-    public SensorReading(long deviceID, Date time, float pollutantLevel, int microclimate, float locationLat, float locationLon, float locationElevation, float locationAccuracy) {
-        this.localDeviceID = deviceID;
+    public SensorReading(long localDeviceID, Date time, float pollutantLevel, int microclimate, float locationLat, float locationLon, float locationElevation, float locationAccuracy) {
+        this.localDeviceID = localDeviceID;
         this.time = time.getTime();
         this.pollutantLevel = pollutantLevel;
         this.microclimate = microclimate;

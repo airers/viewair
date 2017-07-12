@@ -13,6 +13,7 @@ import android.widget.ListView;
 import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.DatabaseSeed;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
+import com.chaijiaxun.pm25tracker.server.ServerDataManager;
 import com.orm.query.Select;
 
 import java.text.SimpleDateFormat;
@@ -65,6 +66,27 @@ public class DevFragment extends Fragment {
         dbSeedDeviceButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 clickDbDeviceSeed();
+            }
+        });
+
+        final Button dev1 = (Button) view.findViewById(R.id.button_dev1);
+        dev1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                ServerDataManager.setServerID(null);
+            }
+        });
+
+        final Button dev2 = (Button) view.findViewById(R.id.button_dev2);
+        dev2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                ServerDataManager.sendDeviceReadings(null);
+            }
+        });
+
+        final Button dev3 = (Button) view.findViewById(R.id.button_dev3);
+        dev3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
             }
         });
 
