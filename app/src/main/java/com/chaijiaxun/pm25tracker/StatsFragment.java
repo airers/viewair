@@ -28,6 +28,7 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -124,7 +125,16 @@ public class StatsFragment extends Fragment {
     private void showCalendarDialog(){
         FragmentManager fm = getChildFragmentManager();
         CalendarDialog calendarDialog = new CalendarDialog();
+        calendarDialog.setTargetFragment(this, 0);
         calendarDialog.show(fm, "fragment_calendar");
+        calendarDialog.setDialogResult(new CalendarDialog.OnMyDialogResult(){
+            @Override
+            public void finish(CalendarDay result) {
+                selectedDate = new GregorianCalendar(result.getYear(), result.getMonth(), result.getDay());
+                dateText.setText(UIUtils.dayString(selectedDate));
+                updatePage();
+            }
+        });
     }
     /**
      * Updates the page based on the selectedDate

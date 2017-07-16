@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 
 import com.chaijiaxun.pm25tracker.R;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 
 import java.util.Calendar;
@@ -21,6 +22,8 @@ import java.util.Calendar;
 public class CalendarDialog extends DialogFragment{
     MaterialCalendarView cv;
     Button cancelButton, todayButton, selectButton;
+    OnMyDialogResult mDialogResult; // the callback
+
 
     public CalendarDialog(){
         // Empty constructor required for DialogFragment
@@ -53,12 +56,23 @@ public class CalendarDialog extends DialogFragment{
         selectButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.d("Calendar Picker", "select pressed");
-                cv.setCurrentDate(Calendar.getInstance());
+            Log.d("Calendar Picker", String.valueOf(cv.getSelectedDate()));
+            if( mDialogResult != null ){
+                mDialogResult.finish(cv.getSelectedDate());
+            }
+            getDialog().dismiss();
             }
         });
 
-
         return v;
     }
+
+    public void setDialogResult(OnMyDialogResult dialogResult){
+        mDialogResult = dialogResult;
+    }
+
+    public interface OnMyDialogResult{
+        void finish(CalendarDay result);
+    }
+
 }
