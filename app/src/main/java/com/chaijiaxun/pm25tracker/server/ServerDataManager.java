@@ -2,6 +2,7 @@ package com.chaijiaxun.pm25tracker.server;
 
 import android.hardware.Sensor;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
@@ -32,21 +33,20 @@ public class ServerDataManager {
 
     private static AsyncHttpClient client = new AsyncHttpClient();
 
-    public static void getLatestTime(AsyncHttpResponseHandler handler) {
-        client.get(BASE_URL + "latest_reading", handler);
+    /**
+     * Assumes that the device already has a serverID
+     */
+    public static void getLatestTime(DatabaseDevice device, AsyncHttpResponseHandler handler) {
+        client.get(BASE_URL + "devices/"+device.getServerID()+"/readings/latest", handler);
     }
 
 
-    /**
-     * Sends the readings from a certain point
-     */
-    public static void sendDeviceReadings(DatabaseDevice device) {
-        device = DatabaseDevice.getList().get(0);
-        long time = 0;
+    private static void sendReadings(long startTime, DatabaseDevice device) {
+
         List<SensorReading> readings = Select.from(SensorReading.class).
                 where(
                         Condition.prop(NamingHelper.toSQLNameDefault("localDeviceID")).eq(device.getId()),
-                        Condition.prop(NamingHelper.toSQLNameDefault("time")).gt(time)
+                        Condition.prop(NamingHelper.toSQLNameDefault("time")).gt(startTime)
                 ).
                 orderBy("time").
                 limit("5").
@@ -73,16 +73,89 @@ public class ServerDataManager {
             }
         }
 
-        String requestPayload = readingsJSON.toString();
-        Log.d(TAG, requestPayload);
+        try {
+            String requestPayload = readingsJSON.toString();
+            Log.d(TAG, requestPayload);
+
+            StringEntity entity = new StringEntity(requestPayload);
+            client.post(AppData.getInstance().getApplicationContext(),
+                    BASE_URL + "/devices/" + device.getServerID() + "/readings",
+                    entity,
+                    "application/json",
+                    new AsyncHttpResponseHandler() {
+                        @Override
+                        public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                            String response = new String(responseBody);
+                            try {
+                                Log.d(TAG, response);
+
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+                            Log.d(TAG, "Failure: " + new String(responseBody));
+                        }
+                    });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    /**
+     * Sends the readings from a certain point
+     */
+    public static void sendDeviceReadings(final DatabaseDevice device) {
+        if ( device == null ) {
+            return;
+        }
+        if ( device.getServerID() == null || device.getServerID().length() == 0 ) {
+            Toast.makeText(AppData.getInstance().getApplicationContext(), "Can't sync, device not registered", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        client.get(BASE_URL + "/devices/"+device.getServerID()+"/readings/latest", new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                String response = new String(responseBody);
+                try {
+                    Log.d(TAG, response);
+
+                    JSONObject responseJSON = new JSONObject(response);
+                    if (responseJSON.optBoolean("exist", false) && responseJSON.has("reading")) {
+                        Log.d(TAG, "Latest reading");
+                        JSONObject reading = (JSONObject)responseJSON.opt("reading");
+                        if ( reading != null ) {
+                            String deviceTime = reading.optString("deviceTime");
+
+                            long timestamp = DataUtils.SQLTimestampToMills(deviceTime);
+                            Log.d(TAG, "Reading Time: " + deviceTime + " " + timestamp);
+                            sendReadings(timestamp, device);
+                        }
+                    }
+                } catch ( Exception e ) {
+                    e.printStackTrace();
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
+            }
+        });
 
     }
 
     /**
      * Gets the server ID from the server
+     * Overrides existing ID
+     * TODO: Check if ID mismatch exists
      */
-    public static void setServerID(DatabaseDevice device) {
-//        if ( device.getServerID() == null ) {
+    public static void setServerID(final DatabaseDevice device) {
+        if ( device != null ) {
             JSONObject phoneInfo = new JSONObject();
             JSONObject jsonParams = new JSONObject();
 
@@ -106,10 +179,15 @@ public class ServerDataManager {
                                     Log.d(TAG, response);
 
                                     JSONObject responseJSON = new JSONObject(response);
+                                    String serverID = responseJSON.getString("id");
                                     if (responseJSON.has("id") && responseJSON.has("lastReading")) {
                                         Log.d(TAG, "Valid JSON");
-                                        Log.d(TAG, "ID: " + responseJSON.getString("id"));
+                                        Log.d(TAG, "ID: " + serverID);
                                         Log.d(TAG, "LastReading: " + responseJSON.getString("lastReading"));
+                                        if ( device != null ) {
+                                            device.setServerID(serverID);
+                                            device.save();
+                                        }
                                     }
                                 } catch ( Exception e ) {
                                     e.printStackTrace();
@@ -127,6 +205,6 @@ public class ServerDataManager {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-//        }
+        }
     }
 }

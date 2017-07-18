@@ -72,14 +72,22 @@ public class DevFragment extends Fragment {
         final Button dev1 = (Button) view.findViewById(R.id.button_dev1);
         dev1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                ServerDataManager.setServerID(null);
+                DatabaseDevice device = null;
+                if ( DatabaseDevice.getList().size() > 0 ) {
+                    device = DatabaseDevice.getList().get(0);
+                }
+                ServerDataManager.setServerID(device);
             }
         });
 
         final Button dev2 = (Button) view.findViewById(R.id.button_dev2);
         dev2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                ServerDataManager.sendDeviceReadings(null);
+                DatabaseDevice device = null;
+                if ( DatabaseDevice.getList().size() > 0 ) {
+                    device = DatabaseDevice.getList().get(0);
+                }
+                ServerDataManager.sendDeviceReadings(device);
             }
         });
 

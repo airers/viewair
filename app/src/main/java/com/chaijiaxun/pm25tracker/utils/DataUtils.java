@@ -2,8 +2,11 @@ package com.chaijiaxun.pm25tracker.utils;
 
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 
@@ -63,6 +66,17 @@ public class DataUtils {
         return today;
     }
 
+    public static long SQLTimestampToMills(String sqlTimestamp) {
+
+        try {
+            DateFormat formatter = new SimpleDateFormat("y-M-d k:m:s.S");
+            Date date = formatter.parse(sqlTimestamp.replace('T', ' ').replace('Z', ' '));
+            return date.getTime();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     public static Calendar millsToDate(long mills) {
         Calendar converted = Calendar.getInstance();
