@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.view.ContextThemeWrapper;
 
 import com.chaijiaxun.pm25tracker.utils.AppData;
+import com.chaijiaxun.pm25tracker.utils.HandsetInfo;
 
 public class SplashActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1 ;
@@ -18,6 +19,8 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         AppData.getInstance().init(getApplicationContext());
+        
+        HandsetInfo.init();
 
         if ( !AppData.getInstance().acceptedEULA() ) {
             new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogTheme))

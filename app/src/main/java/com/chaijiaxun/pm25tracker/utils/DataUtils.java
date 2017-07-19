@@ -1,6 +1,10 @@
 package com.chaijiaxun.pm25tracker.utils;
 
+import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
+import com.orm.query.Condition;
+import com.orm.query.Select;
+import com.orm.util.NamingHelper;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -52,6 +56,40 @@ public class DataUtils {
         sDate = selectedDate.getTimeInMillis() + (hour * 60 * 60 * 1000);
         eDate = sDate + 60 * 60 * 1000;
         return SensorReading.findWithQuery(SensorReading.class, "SELECT * from SENSOR_READING where time >= " + sDate + " AND time < " + eDate);
+    }
+
+    /**
+     * Gets a count of all the readings from the given time non inclusive
+     * @param device Device to get readings of
+     * @param startTime timestamp in mills, non inclusive
+     * @return
+     */
+    public static int getReadingCountFrom(DatabaseDevice device, long startTime) {
+        return Select.from(SensorReading.class).
+                where(
+                        Condition.prop(NamingHelper.toSQLNameDefault("localDeviceID")).eq(device.getId()),
+                        Condition.prop(NamingHelper.toSQLNameDefault("time")).gt(startTime)
+                ).list().size();
+    }
+
+    /**
+     * Gets a list of all the readings from the given time non inclusive
+     * @param device Device to get readings of
+     * @param startTime timestamp in mills, non inclusive
+     */
+    public static List<SensorReading> getReadingsFrom(DatabaseDevice device, long startTime, int limit) {
+        return Select.from(SensorReading.class).
+                where(
+                        Condition.prop(NamingHelper.toSQLNameDefault("localDeviceID")).eq(device.getId()),
+                        Condition.prop(NamingHelper.toSQLNameDefault("time")).gt(startTime)
+                ).
+                orderBy("time").
+                limit(String.valueOf(limit)).
+                list();
+    }
+
+    public static List<SensorReading> getReadingsFrom(DatabaseDevice device, long startTime) {
+        return getReadingsFrom(device, startTime, 100);
     }
 
     /**

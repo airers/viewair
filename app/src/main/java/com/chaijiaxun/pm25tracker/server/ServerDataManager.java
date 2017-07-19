@@ -1,6 +1,5 @@
 package com.chaijiaxun.pm25tracker.server;
 
-import android.hardware.Sensor;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -8,10 +7,8 @@ import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.DataUtils;
+import com.chaijiaxun.pm25tracker.utils.HandsetInfo;
 import com.loopj.android.http.*;
-import com.orm.query.Condition;
-import com.orm.query.Select;
-import com.orm.util.NamingHelper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -20,7 +17,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
-import cz.msebera.android.httpclient.client.utils.DateUtils;
 import cz.msebera.android.httpclient.entity.StringEntity;
 
 /**
@@ -41,16 +37,17 @@ public class ServerDataManager {
     }
 
 
-    private static void sendReadings(long startTime, DatabaseDevice device) {
+    private static void sendReadings(DatabaseDevice device, long startTime) {
 
-        List<SensorReading> readings = Select.from(SensorReading.class).
-                where(
-                        Condition.prop(NamingHelper.toSQLNameDefault("localDeviceID")).eq(device.getId()),
-                        Condition.prop(NamingHelper.toSQLNameDefault("time")).gt(startTime)
-                ).
-                orderBy("time").
-                limit("5").
-                list();
+        int readingsLeft = DataUtils.getReadingCountFrom(device, startTime);
+
+        Log.d(TAG, "Sending readings. Readings left: " + readingsLeft);
+        if ( readingsLeft == 0 ) {
+            Log.d(TAG, "No more readings, aborting");
+            return;
+        }
+
+        List<SensorReading> readings = DataUtils.getReadingsFrom(device, startTime, 100);
 
         JSONArray readingsJSON = new JSONArray();
         // Convert readings into JSON
@@ -59,7 +56,7 @@ public class ServerDataManager {
                 JSONObject readingJSON = new JSONObject();
                 Calendar cal = DataUtils.millsToDate(reading.getTime());
 
-                readingJSON.put("time", DataUtils.dateToSQLDate(cal));
+                readingJSON.put("deviceTime", DataUtils.dateToSQLDate(cal));
                 readingJSON.put("pm25", reading.getPollutantLevel());
                 readingJSON.put("microclimate", reading.getMicroclimate());
                 readingJSON.put("locationLat", reading.getLocationLat());
@@ -88,7 +85,11 @@ public class ServerDataManager {
                             String response = new String(responseBody);
                             try {
                                 Log.d(TAG, response);
+                                JSONObject responseJSON = new JSONObject(response);
+                                int passed = responseJSON.optInt("pass", -1);
+                                int failed = responseJSON.optInt("fail", -1);
 
+                                Log.d(TAG, "Passed: " + passed + "/" + (passed + failed));
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
@@ -123,17 +124,22 @@ public class ServerDataManager {
                     Log.d(TAG, response);
 
                     JSONObject responseJSON = new JSONObject(response);
+                    long timestamp = 0;
                     if (responseJSON.optBoolean("exist", false) && responseJSON.has("reading")) {
                         Log.d(TAG, "Latest reading");
                         JSONObject reading = (JSONObject)responseJSON.opt("reading");
                         if ( reading != null ) {
                             String deviceTime = reading.optString("deviceTime");
 
-                            long timestamp = DataUtils.SQLTimestampToMills(deviceTime);
+                            timestamp = DataUtils.SQLTimestampToMills(deviceTime);
                             Log.d(TAG, "Reading Time: " + deviceTime + " " + timestamp);
-                            sendReadings(timestamp, device);
                         }
+                    } else {
+                        // No existing readings
+                        Log.d(TAG, "No Readings");
                     }
+                    sendReadings(device, timestamp);
+
                 } catch ( Exception e ) {
                     e.printStackTrace();
                 }
@@ -156,14 +162,19 @@ public class ServerDataManager {
      */
     public static void setServerID(final DatabaseDevice device) {
         if ( device != null ) {
-            JSONObject phoneInfo = new JSONObject();
+            JSONObject phoneInfo = HandsetInfo.getInfoJSON();
             JSONObject jsonParams = new JSONObject();
+            String handsetID = HandsetInfo.getHandsetID();
+            String sensorID = device.getUuid();
+
+            if ( handsetID.length() == 0 || sensorID.length() == 0 ) {
+                Toast.makeText(AppData.getInstance().getApplicationContext(), "Missing Device IDs, cannot sync", Toast.LENGTH_LONG).show();
+                return;
+            }
 
             try {
-                phoneInfo.put("model", "Regular Phone");
-                phoneInfo.put("type", "Android");
-                jsonParams.put("phoneUuid", "1234567890abcdef");
-                jsonParams.put("sensorUuid", "fedcba0987654321");
+                jsonParams.put("phoneUuid", handsetID);
+                jsonParams.put("sensorUuid", sensorID);
                 jsonParams.put("phoneInfo", phoneInfo);
                 StringEntity entity = new StringEntity(jsonParams.toString());
 
