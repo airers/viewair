@@ -28,6 +28,7 @@ public class ServerDataManager {
     private static final String TAG = "ServerDataManager";
 
     private static AsyncHttpClient client = new AsyncHttpClient();
+    private static int syncing = 0; // Number currently syncing
 
     /**
      * Assumes that the device already has a serverID
@@ -36,8 +37,40 @@ public class ServerDataManager {
         client.get(BASE_URL + "devices/"+device.getServerID()+"/readings/latest", handler);
     }
 
+    /**
+     * Registers all the devices if they are not already
+     */
+    public static void registerDevices() {
+        for ( DatabaseDevice databaseDevice : DatabaseDevice.getList() ) {
+            if ( databaseDevice.getServerID() == null ) {
+                setServerID(databaseDevice);
+            }
+        }
+    }
 
-    private static void sendReadings(DatabaseDevice device, long startTime) {
+    public static void syncDataToServer() {
+        if ( syncing > 0 ) {
+            return;
+        }
+        for ( DatabaseDevice databaseDevice : DatabaseDevice.getList() ) {
+            if ( databaseDevice.getServerID() != null ) {
+                sendDeviceReadings(databaseDevice);
+            }
+        }
+    }
+
+
+    public static int getTotalUnsyncedCount() {
+        int totalUnread = 0;
+
+        for ( DatabaseDevice databaseDevice : DatabaseDevice.getList() ) {
+            long lastServerSyncTime = databaseDevice.getLastServerSyncTime();
+            totalUnread += DataUtils.getReadingCountFrom(databaseDevice, lastServerSyncTime);
+        }
+        return totalUnread;
+    }
+
+    private static void sendReadings(final DatabaseDevice device, long startTime) {
 
         int readingsLeft = DataUtils.getReadingCountFrom(device, startTime);
 
@@ -47,10 +80,13 @@ public class ServerDataManager {
             return;
         }
 
+        syncing++;
+
         List<SensorReading> readings = DataUtils.getReadingsFrom(device, startTime, 100);
 
         JSONArray readingsJSON = new JSONArray();
         // Convert readings into JSON
+        final long lastReadingTime = readings.get(readings.size()-1).getTime();
         for ( SensorReading reading : readings ) {
             try {
                 JSONObject readingJSON = new JSONObject();
@@ -90,14 +126,18 @@ public class ServerDataManager {
                                 int failed = responseJSON.optInt("fail", -1);
 
                                 Log.d(TAG, "Passed: " + passed + "/" + (passed + failed));
+                                device.setLastServerSyncTime(lastReadingTime);
+                                AppData.getInstance().setLastServerSync();
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
+                            syncing--;
                         }
 
                         @Override
                         public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
                             Log.d(TAG, "Failure: " + new String(responseBody));
+                            syncing--;
                         }
                     });
         } catch (Exception e) {
@@ -116,6 +156,8 @@ public class ServerDataManager {
             return;
         }
 
+        syncing++;
+
         client.get(BASE_URL + "/devices/"+device.getServerID()+"/readings/latest", new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -132,6 +174,7 @@ public class ServerDataManager {
                             String deviceTime = reading.optString("deviceTime");
 
                             timestamp = DataUtils.SQLTimestampToMills(deviceTime);
+                            device.setLastServerSyncTime(timestamp);
                             Log.d(TAG, "Reading Time: " + deviceTime + " " + timestamp);
                         }
                     } else {
@@ -144,12 +187,12 @@ public class ServerDataManager {
                     e.printStackTrace();
                 }
 
-
+                syncing--;
             }
 
             @Override
             public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
-
+                syncing--;
             }
         });
 
@@ -195,16 +238,12 @@ public class ServerDataManager {
                                         Log.d(TAG, "Valid JSON");
                                         Log.d(TAG, "ID: " + serverID);
                                         Log.d(TAG, "LastReading: " + responseJSON.getString("lastReading"));
-                                        if ( device != null ) {
-                                            device.setServerID(serverID);
-                                            device.save();
-                                        }
+                                        device.setServerID(serverID);
+                                        device.save();
                                     }
                                 } catch ( Exception e ) {
                                     e.printStackTrace();
                                 }
-
-
                             }
 
                             @Override
