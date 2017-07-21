@@ -9,8 +9,6 @@ import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
-import com.orm.query.Condition;
-import com.orm.query.Select;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,7 +41,7 @@ public class DeviceManager {
     // 1 - 3 if it's connected.
     // Each number represents one missed acknowledgement packet.
     // Once it hits 4 it is assumed the device is lost.
-    int connectionStatus = 0;
+    private int connectionStatus = 0;
     private boolean receivedAck;
 
     final Handler handler = new Handler();
@@ -189,8 +187,12 @@ public class DeviceManager {
                     int microclimateInt = (int) microclimate;
 //                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
 
-                    SensorReading dbReading = new SensorReading(0, new Date(time), reading, microclimateInt, lat, lon, ele, acc);
-                    dbReading.save();
+                    if ( DeviceManager.getInstance().isDeviceConnected() ) { // Only save if the device is connected
+                        long localDeviceID = DeviceManager.getInstance().getCurrentDevice().getId();
+                        SensorReading dbReading = new SensorReading(localDeviceID, new Date(time), reading, microclimateInt, lat, lon, ele, acc);
+                        dbReading.save();
+                    }
+
                 }
                 break;
             case BTPacket.TYPE_MICROCLIMATE_PACKET:
