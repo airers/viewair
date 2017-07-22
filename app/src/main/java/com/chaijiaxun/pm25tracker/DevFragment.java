@@ -6,30 +6,24 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Spinner;
 
 import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.DatabaseSeed;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
+import com.chaijiaxun.pm25tracker.server.ServerDataManager;
+import com.orm.query.Select;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
+import java.util.List;
 
 public class DevFragment extends Fragment {
 
-    EditText sensorReading;
     ListView readingList;
     ListView devicesList;
-    double lat, lon;
 
     public DevFragment() {
 
@@ -51,59 +45,59 @@ public class DevFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 
-        View view = inflater.inflate(R.layout.content_main, container, false);
+        View view = inflater.inflate(R.layout.fragment_dev, container, false);
 
-        final Button saveButton = (Button) view.findViewById(R.id.button_save);
-        saveButton.setOnClickListener(new View.OnClickListener() {
+
+        final Button deleteButton = (Button) view.findViewById(R.id.button_db_delete);
+        deleteButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                saveReading();
+                clickDbDelete();
             }
         });
 
-        final Button locateButton = (Button) view.findViewById(R.id.button_locate);
-        locateButton.setOnClickListener(new View.OnClickListener() {
+        final Button dbSeedReadingButton = (Button) view.findViewById(R.id.button_db_seed_reading);
+        dbSeedReadingButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                clickLocation();
+                clickDbReadingSeed();
             }
         });
 
-        final Button dbSeedButton = (Button) view.findViewById(R.id.button_db_seed);
-        dbSeedButton.setOnClickListener(new View.OnClickListener() {
+        final Button dbSeedDeviceButton = (Button) view.findViewById(R.id.button_db_seed_device);
+        dbSeedDeviceButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                clickDbSeed();
+                clickDbDeviceSeed();
             }
         });
 
-        Spinner spinner = (Spinner) view.findViewById(R.id.spinner_reading_filter);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.microclimate_array, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            /**
-             * Called when a new item is selected (in the Spinner)
-             */
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int pos, long id) {
-                String selected = (String) parent.getItemAtPosition(pos);
-                switch (selected){
-                    case "Indoors": loadReadings();
-                        break;
-                    case "Outdoors": loadReadings();
-                        break;
+        final Button dev1 = (Button) view.findViewById(R.id.button_dev1);
+        dev1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                DatabaseDevice device = null;
+                if ( DatabaseDevice.getList().size() > 0 ) {
+                    device = DatabaseDevice.getList().get(0);
                 }
-                Log.d("OnDateChangeListener", (String) parent.getItemAtPosition(pos));
-                //Toast.makeText(MyActivity.this, "Hello Toast",Toast.LENGTH_SHORT).show();
-                //loadReadings();
+                ServerDataManager.setServerID(device);
             }
-
-            public void onNothingSelected(AdapterView<?> parent) {
-                // Do nothing, just another required interface callback
-            }
-
         });
 
-        sensorReading = (EditText) view.findViewById(R.id.sensor_reading);
+        final Button dev2 = (Button) view.findViewById(R.id.button_dev2);
+        dev2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                DatabaseDevice device = null;
+                if ( DatabaseDevice.getList().size() > 0 ) {
+                    device = DatabaseDevice.getList().get(0);
+                }
+                ServerDataManager.sendDeviceReadings(device);
+            }
+        });
+
+        final Button dev3 = (Button) view.findViewById(R.id.button_dev3);
+        dev3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+            }
+        });
+
         readingList = (ListView) view.findViewById(R.id.readings_view);
         devicesList = (ListView) view.findViewById(R.id.devices_view);
         loadReadings();
@@ -113,51 +107,38 @@ public class DevFragment extends Fragment {
 
     }
 
-    public void clickLocation() {
+    public void clickDbDelete() {
         SensorReading.deleteAll(SensorReading.class);
         DatabaseDevice.deleteAll(DatabaseDevice.class);
         loadReadings();
         loadDevices();
     }
 
-    public void clickDbSeed() {
-        DatabaseSeed.seed(10);
-        DatabaseDevice databaseDevice = new DatabaseDevice("Device Name", "123");
-        databaseDevice.save();
+    public void clickDbDeviceSeed() {
+        DatabaseSeed.seedDevice();
+
         loadReadings();
         loadDevices();
     }
 
-    public void saveReading() {
-        Log.d("MainActivity", "Saving reading");
-        String text = sensorReading.getText().toString();
-        float readingInt;
-        try {
-            readingInt = Integer.parseInt(text);
-        } catch (NumberFormatException e) {
-            readingInt = 0;
-        }
-
-        Date date = new Date();
-        SensorReading reading = new SensorReading(0, date, readingInt, 0, (float)lat, (float)lon, 0, 0);
-
-        reading.save();
-        Log.d("MainActivity", reading.toString());
+    public void clickDbReadingSeed() {
+        DatabaseSeed.seedReadings(10);
 
         loadReadings();
+        loadDevices();
     }
 
     public void loadReadings() {
-        ArrayList<SensorReading> list = (ArrayList)SensorReading.getList();
+        List<SensorReading> list = Select.from(SensorReading.class).orderBy("time").list();
         String[] values;
-        String outputPattern = "dd/MMM h:mm a";
+        String outputPattern = "dd MMM h:mm a";
         SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
         Log.d("Load Readings", list.size() + " ");
         if ( list.size() > 0 ) {
             values = new String[list.size()];
             for ( int i = 0; i < list.size(); i++ ) {
-
-                values[i] = "Time: " + String.valueOf(outputFormat.format(list.get(i).getTime()));
+                values[i] = "Device: " + String.valueOf(list.get(i).getLocalDeviceID());
+                values[i] += "\n" + String.valueOf(outputFormat.format(list.get(i).getTime()));
                 values[i] += "\nReading: " + String.valueOf(list.get(i).getPollutantLevel());
                 values[i] += "\nmClimate: " + String.valueOf(list.get(i).getMicroclimate());
             }
@@ -178,7 +159,9 @@ public class DevFragment extends Fragment {
         if ( list.size() > 0 ) {
             values = new String[list.size()];
             for ( int i = 0; i < list.size(); i++ ) {
-                values[i] = "UUID: " + String.valueOf(list.get(i).getUuid());
+                values[i] = "ID: " + String.valueOf(list.get(i).getId());
+                values[i] += "\nUUID: " + String.valueOf(list.get(i).getUuid());
+
                 values[i] += "\nName: " + String.valueOf(list.get(i).getName());
             }
         } else {
