@@ -132,9 +132,14 @@ public class MainActivity extends AppCompatActivity
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
+        FragmentManager fragmentManager = getSupportFragmentManager();
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            setTitle("Settings");
+            fragmentManager.beginTransaction()
+                    .replace(R.id.content_frame, SettingsFragment.newInstance())
+                    .addToBackStack("Settings")
+                    .commit();
             return true;
         }
 
@@ -155,7 +160,7 @@ public class MainActivity extends AppCompatActivity
                         .addToBackStack("Home")
                         .commit();
 
-                setTitle("PM2.5 App");
+                setTitle("Viewair");
 
                 Log.d(TAG, "Pressed home");
                 break;
@@ -182,13 +187,6 @@ public class MainActivity extends AppCompatActivity
                         .addToBackStack("Readings")
                         .commit();
 
-                break;
-            case R.id.nav_settings:
-                setTitle("Settings");
-                fragmentManager.beginTransaction()
-                        .replace(R.id.content_frame, SettingsFragment.newInstance())
-                        .addToBackStack("Settings")
-                        .commit();
                 break;
             case R.id.nav_bluetooth:
                 setTitle("Bluetooth Devices");

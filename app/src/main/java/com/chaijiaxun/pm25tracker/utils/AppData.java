@@ -8,21 +8,24 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.content.SharedPreferences;
 
+import java.util.Calendar;
+
 /**
  * Singleton class that stores all the global variables in the app
  */
 
 public class AppData {
-    public static final String PREFS_NAME = "ViewairPrefs";
-    public static final String LAST_DEVICE = "LastDevice";
-    public static final String EULA_ACCEPTED = "EULAAccepted";
+    static private final String PREFS_NAME = "ViewairPrefs";
+    static private final String LAST_DEVICE = "LastDevice";
+    static private final String LAST_SERVER_SYNC = "LastServerSync";
+    static private final String EULA_ACCEPTED = "EULAAccepted";
 
     private BluetoothAdapter bluetoothAdapter;
     private int packetsLeft;
     private int totalPackets;
 
-    TextView messageText;
-    ProgressBar transferProgress;
+    private TextView messageText;
+    private ProgressBar transferProgress;
 
     private static AppData instance = new AppData();
     public static AppData getInstance() {
@@ -36,10 +39,29 @@ public class AppData {
 
     private Context appContext;
 
+    public Calendar getLastServerSync() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        long lastSyncTimestamp = settings.getLong(LAST_SERVER_SYNC, 0);
+        if ( lastSyncTimestamp == 0 ) {
+            return null;
+        }
+        return DataUtils.millsToDate(lastSyncTimestamp);
+    }
+
+    public void setLastServerSync() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putLong(LAST_SERVER_SYNC, Calendar.getInstance().getTimeInMillis());
+
+        // Commit the edits!
+        editor.apply();
+    }
+
     public boolean acceptedEULA() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
         return settings.getBoolean(EULA_ACCEPTED, false);
     }
+
     public void acceptEULA() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -53,6 +75,7 @@ public class AppData {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
         return settings.getString(LAST_DEVICE, null);
     }
+
     public void setLastDeviceUUID(String uuid) {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
@@ -61,6 +84,7 @@ public class AppData {
         // Commit the edits!
         editor.apply();
     }
+
     public void init(Context appContext) {
         this.appContext = appContext;
         initSettings();
