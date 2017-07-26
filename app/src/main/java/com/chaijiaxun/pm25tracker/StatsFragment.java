@@ -2,6 +2,8 @@ package com.chaijiaxun.pm25tracker;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +13,7 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.chaijiaxun.pm25tracker.calendar.CalendarDialog;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.lists.StatsItem;
 import com.chaijiaxun.pm25tracker.lists.StatsItemAdapter;
@@ -25,6 +28,7 @@ import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.utils.ColorTemplate;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -90,6 +94,13 @@ public class StatsFragment extends Fragment {
 
         prevButton.setOnClickListener(dateChange);
         nextButton.setOnClickListener(dateChange);
+        dateText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.d("Calendar Picker", "date pressed");
+                showCalendarDialog();
+            }
+        });
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(), R.array.microclimate_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -111,7 +122,20 @@ public class StatsFragment extends Fragment {
 
         return fragmentView;
     }
-
+    private void showCalendarDialog(){
+        FragmentManager fm = getChildFragmentManager();
+        CalendarDialog calendarDialog = new CalendarDialog();
+        calendarDialog.setTargetFragment(this, 0);
+        calendarDialog.show(fm, "fragment_calendar");
+        calendarDialog.setDialogResult(new CalendarDialog.OnMyDialogResult(){
+            @Override
+            public void finish(CalendarDay result) {
+                selectedDate = new GregorianCalendar(result.getYear(), result.getMonth(), result.getDay());
+                dateText.setText(UIUtils.dayString(selectedDate));
+                updatePage();
+            }
+        });
+    }
     /**
      * Updates the page based on the selectedDate
      */
