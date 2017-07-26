@@ -3,14 +3,19 @@ package com.chaijiaxun.pm25tracker;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.SwitchCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.SettingType;
+import com.chaijiaxun.pm25tracker.utils.TimezoneUtils;
 
 /**
  * Settings for the App
@@ -63,6 +68,30 @@ public class SettingsFragment extends Fragment {
         swtichAutosync = (SwitchCompat) view.findViewById(R.id.switch_setting_auto_sync);
         switchStatusbar = (SwitchCompat) view.findViewById(R.id.switch_setting_status);
         switchCloud = (SwitchCompat) view.findViewById(R.id.switch_setting_cloud);
+
+
+        Spinner timezoneSpinner = (Spinner) view.findViewById(R.id.spinner_timezone);
+
+        String[] timezones = TimezoneUtils.getNames();
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, timezones);
+        timezoneSpinner.setAdapter(adapter);
+
+        timezoneSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            /**
+             * Called when a new item is selected (in the Spinner)
+             */
+            public void onItemSelected(AdapterView<?> parent, View view,
+                                       int pos, long id) {
+                String selected = (String) parent.getItemAtPosition(pos);
+                //Toast.makeText(MyActivity.this, "Hello Toast",Toast.LENGTH_SHORT).show();
+                //loadReadings();
+            }
+
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing, just another required interface callback
+            }
+
+        });
 
         readSettings();
         return view;
