@@ -22,10 +22,13 @@ import com.chaijiaxun.pm25tracker.utils.TimezoneUtils;
  */
 
 public class SettingsFragment extends Fragment {
+    private static final String TAG = "SettingsFragment";
     Button buttonSave, buttonCancel;
 
     SwitchCompat switchAutoconnect, switchAutoconnectDevice, swtichAutosync,
                  switchStatusbar, switchCloud;
+
+    int selectedTimezoneOffset = 0;
 
     public SettingsFragment() {
 
@@ -70,6 +73,8 @@ public class SettingsFragment extends Fragment {
         switchCloud = (SwitchCompat) view.findViewById(R.id.switch_setting_cloud);
 
 
+        readSettings();
+
         Spinner timezoneSpinner = (Spinner) view.findViewById(R.id.spinner_timezone);
 
         String[] timezones = TimezoneUtils.getNames();
@@ -80,20 +85,20 @@ public class SettingsFragment extends Fragment {
             /**
              * Called when a new item is selected (in the Spinner)
              */
-            public void onItemSelected(AdapterView<?> parent, View view,
-                                       int pos, long id) {
-                String selected = (String) parent.getItemAtPosition(pos);
-                //Toast.makeText(MyActivity.this, "Hello Toast",Toast.LENGTH_SHORT).show();
-                //loadReadings();
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                selectedTimezoneOffset = TimezoneUtils.getTimezoneOffset(pos);
             }
 
             public void onNothingSelected(AdapterView<?> parent) {
                 // Do nothing, just another required interface callback
             }
-
         });
 
-        readSettings();
+        int spinnerIndex = TimezoneUtils.indexOfTimezone(selectedTimezoneOffset);
+        if ( spinnerIndex >= 0 ) {
+            timezoneSpinner.setSelection(spinnerIndex);
+        }
+
         return view;
     }
 
@@ -106,7 +111,7 @@ public class SettingsFragment extends Fragment {
         swtichAutosync.setChecked(AppData.getInstance().getSetting(SettingType.AUTOSYNC));
         switchStatusbar.setChecked(AppData.getInstance().getSetting(SettingType.STATUSBAR));
         switchCloud.setChecked(AppData.getInstance().getSetting(SettingType.CLOUD));
-
+        selectedTimezoneOffset = AppData.getInstance().getTimezoneOffset();
     }
 
     public void saveSettings() {
@@ -115,6 +120,7 @@ public class SettingsFragment extends Fragment {
         AppData.getInstance().saveSetting(SettingType.AUTOSYNC, swtichAutosync.isChecked());
         AppData.getInstance().saveSetting(SettingType.STATUSBAR, switchStatusbar.isChecked());
         AppData.getInstance().saveSetting(SettingType.CLOUD, switchCloud.isChecked());
+        AppData.getInstance().setTimezoneOffset(selectedTimezoneOffset);
         Toast.makeText(getContext(), "Settings Saved", Toast.LENGTH_SHORT).show();
     }
 }

@@ -10,15 +10,15 @@ import java.util.TimeZone;
 
 public class TimezoneUtils {
     private static class TimezoneObject {
-        private float rawOffset;
+        private int rawOffset;
         private String name;
 
         public TimezoneObject(float hourOffset, String name) {
-            this.rawOffset = hourOffset * 60 * 60 * 1000;
+            this.rawOffset = (int)(hourOffset * 60 * 60 * 1000);
             this.name = name;
         }
 
-        public float getRawOffset() {
+        public int getRawOffset() {
             return rawOffset;
         }
 
@@ -31,6 +31,10 @@ public class TimezoneUtils {
             new TimezoneObject(7, "UTC+7"),
             new TimezoneObject(8, "UTC+8"),
             new TimezoneObject(9, "UTC+9"),
+            new TimezoneObject(10, "UTC+10"),
+            new TimezoneObject(11, "UTC+11"),
+            new TimezoneObject(12, "UTC+12"),
+
     };
     public static String [] getNames() {
         String [] timezoneNames = new String[timezones.length];
@@ -42,17 +46,34 @@ public class TimezoneUtils {
         return timezoneNames;
     }
 
+    /**
+     *
+     * @param timezoneOffset in millis
+     * @return Index of the selected timezone -1 if doesn't exist
+     */
+    public static int indexOfTimezone(int timezoneOffset) {
+        for (int i = 0; i < timezones.length; i++) {
+            if ( timezones[i].getRawOffset() == timezoneOffset ) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static int getTimezoneOffset(int timezoneIndex) {
+        return timezones[timezoneIndex].getRawOffset();
+    }
+
     public static int getPhoneTimezone() {
         TimeZone timezone = TimeZone.getDefault();
-        Log.d("Timezone", timezone.getDisplayName());
-        Log.d("Timezone", timezone.getID());
-        Log.d("Timezone", timezone.getRawOffset() + "" );
-
-        String [] timezones = TimeZone.getAvailableIDs(timezone.getRawOffset());
-        for ( String time : timezones ) {
-            Log.d("Timezone", time);
-        }
-
+//        Log.d("Timezone", timezone.getDisplayName());
+//        Log.d("Timezone", timezone.getID());
+//        Log.d("Timezone", timezone.getRawOffset() + "" );
+//
+//        String [] timezones = TimeZone.getAvailableIDs(timezone.getRawOffset());
+//        for ( String time : timezones ) {
+//            Log.d("Timezone", time);
+//        }
         return timezone.getRawOffset();
     }
 }
