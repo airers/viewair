@@ -21,6 +21,33 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
 
+                <TextView
+                    style="@style/AppTheme.TextSubheader"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Timezone"
+                    />
+                <TextView
+                    style="@style/AppTheme.TextDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Only affects the phone's timezone, not the sensor."
+                    />
+                <Spinner
+                    android:id="@+id/spinner_timezone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginBottom="5dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                style="@style/AppTheme.SettingItem"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

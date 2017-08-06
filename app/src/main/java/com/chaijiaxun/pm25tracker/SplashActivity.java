@@ -10,6 +10,7 @@ import android.support.v7.view.ContextThemeWrapper;
 
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.HandsetInfo;
+import com.chaijiaxun.pm25tracker.utils.TimezoneUtils;
 
 public class SplashActivity extends AppCompatActivity {
     private static final int REQUEST_ENABLE_BT = 1 ;
@@ -21,6 +22,7 @@ public class SplashActivity extends AppCompatActivity {
         AppData.getInstance().init(getApplicationContext());
         
         HandsetInfo.init();
+        TimezoneUtils.getPhoneTimezone();
 
         if ( !AppData.getInstance().acceptedEULA() ) {
             new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AlertDialogTheme))

@@ -19,6 +19,7 @@ public class AppData {
     static private final String LAST_DEVICE = "LastDevice";
     static private final String LAST_SERVER_SYNC = "LastServerSync";
     static private final String EULA_ACCEPTED = "EULAAccepted";
+    static private final String TIMEZONE_OFFSET = "TimezoneOffset";
 
     private BluetoothAdapter bluetoothAdapter;
     private int packetsLeft;
@@ -66,6 +67,28 @@ public class AppData {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
         SharedPreferences.Editor editor = settings.edit();
         editor.putBoolean(EULA_ACCEPTED, true);
+
+        // Commit the edits!
+        editor.apply();
+    }
+
+    public int getTimezoneOffset() {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        int timezoneOffset = 0;
+        if (!settings.contains(TIMEZONE_OFFSET)) {
+            timezoneOffset = TimezoneUtils.getPhoneTimezone();
+            setTimezoneOffset(timezoneOffset);
+        } else {
+            timezoneOffset = settings.getInt(TIMEZONE_OFFSET, 0);
+        }
+
+        return timezoneOffset;
+    }
+
+    public void setTimezoneOffset(int timezone) {
+        SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putInt(TIMEZONE_OFFSET, timezone);
 
         // Commit the edits!
         editor.apply();
