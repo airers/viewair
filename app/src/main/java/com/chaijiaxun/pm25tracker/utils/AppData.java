@@ -22,6 +22,7 @@ public class AppData {
     static private final String TIMEZONE_OFFSET = "TimezoneOffset";
 
     private BluetoothAdapter bluetoothAdapter;
+    private CountState readingCountState = CountState.IDLE;
     private int packetsLeft;
     private int totalPackets;
 
@@ -39,6 +40,14 @@ public class AppData {
     }
 
     private Context appContext;
+
+    public CountState getReadingCountState() {
+        return readingCountState;
+    }
+
+    public void setReadingCountState(CountState readingCountState) {
+        this.readingCountState = readingCountState;
+    }
 
     public Calendar getLastServerSync() {
         SharedPreferences settings = getApplicationContext().getSharedPreferences(PREFS_NAME, 0);
@@ -130,6 +139,7 @@ public class AppData {
         setTransferProgress();
 
         if ( packetsLeft <= 0 ) {
+            setReadingCountState(CountState.IDLE);
             totalPackets = 0;
             packetsLeft = 0;
             setMessageText("Connected");
@@ -140,6 +150,10 @@ public class AppData {
         double percent =  ((double)(totalPackets - packetsLeft) / (double)totalPackets);
         Log.d("DeviceManager", "Percent: " + percent);
         return percent;
+    }
+
+    public int getTotalPackets() {
+        return totalPackets;
     }
 
     public void setPacketsLeft(int packetsLeft) {

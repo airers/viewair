@@ -9,6 +9,7 @@ import com.chaijiaxun.pm25tracker.database.DatabaseDevice;
 import com.chaijiaxun.pm25tracker.database.SensorReading;
 import com.chaijiaxun.pm25tracker.utils.AppData;
 import com.chaijiaxun.pm25tracker.utils.ByteUtils;
+import com.chaijiaxun.pm25tracker.utils.CountState;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -136,6 +137,7 @@ public class DeviceManager {
 //                    Log.d(TAG, "Timestamp " + deviceTimestamp);
                 }
                 break;
+            case BTPacket.TYPE_READING_COUNTING:
             case BTPacket.TYPE_READING_COUNT:
                 receivedAck = true;
 //                Log.d(TAG, ByteUtils.byteArrayToString(data));
@@ -147,19 +149,24 @@ public class DeviceManager {
 
                     AppData.getInstance().setPacketsLeft(pendingReadingCount);
 
-                    byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(0);
+                    if ( type == BTPacket.TYPE_READING_COUNT ) {
+                        AppData.getInstance().setReadingCountState(CountState.GOT_READINGS);
+                        // Once the reading is complete, initiate the ready to receive
+                        byte [] timeBytes = ByteUtils.androidLongTSToAndroidLongTS(0);
 
-                    byte [] bytes = new byte[8];
-                    bytes[0] = BTPacket.TYPE_READY_TO_RECEIVE;
-                    bytes[1] = 6;
-                    bytes[2] = timeBytes[0];
-                    bytes[3] = timeBytes[1];
-                    bytes[4] = timeBytes[2];
-                    bytes[5] = timeBytes[3];
-                    bytes[6] = data.get(2);
-                    bytes[7] = data.get(3);
+                        byte [] bytes = new byte[8];
+                        bytes[0] = BTPacket.TYPE_READY_TO_RECEIVE;
+                        bytes[1] = 6;
+                        bytes[2] = timeBytes[0];
+                        bytes[3] = timeBytes[1];
+                        bytes[4] = timeBytes[2];
+                        bytes[5] = timeBytes[3];
+                        bytes[6] = data.get(2);
+                        bytes[7] = data.get(3);
 
-                    bluetoothService.write(bytes);
+                        bluetoothService.write(bytes);
+                    }
+
 
                 }
                 break;
@@ -185,7 +192,7 @@ public class DeviceManager {
                     float acc = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(accBytes));
                     float ele = ByteUtils.byteArrayToFloat(ByteUtils.reverseArray(eleBytes));
                     int microclimateInt = (int) microclimate;
-//                    Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
+                    // Log.d(TAG, time+"\n"+reading+"\n"+lat+"\n"+lon+"\n"+acc+"\n"+ele+"\n"+microclimateInt);
 
                     if ( DeviceManager.getInstance().isDeviceConnected() ) { // Only save if the device is connected
                         long localDeviceID = DeviceManager.getInstance().getCurrentDevice().getId();
